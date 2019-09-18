@@ -1,13 +1,36 @@
 // one window.onload for a page is enough
 // we need to ensure that we do thing only when the page is loaded
-window.onload = function(){
+window.onload = function() {
   let canvas = document.getElementById("testCanvas");
   //choose what you are going to do with your canvas
   let context = canvas.getContext("2d");
   console.log(canvas);
 
-  let cBox = new CustomShape(canvas.width / 2, canvas.height / 2, 50, 50, 255, 0, 0, 1.0, context);
-  cBox.display();
+  let shapeList = [];
+  const MAX_SHAPE = 33;
+
+  for (var i = 0; i < MAX_SHAPE; i++) {
+    let r = Math.floor(Math.random() * 255);
+    let g = Math.floor(Math.random() * 255);
+    let b = Math.floor(Math.random() * 255);
+    shapeList.push(new CustomShape(i, i, 50, 50, r, b, g, 1.0, context, canvas,(i % 5) + 1, (i % 7) + 1));
+  }
+
+  //let cBox = new CustomShape(canvas.width / 2, canvas.height / 2, 50, 50, 255, 0, 0, 1.0, context, canvas);
+  // synced with frameRate
+  requestAnimationFrame(run);
+
+  function run() {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (var i = 0; i < shapeList.length; i++) {
+      shapeList[i].display();
+      shapeList[i].update();
+    }
+    // cBox.display();
+    // cBox.update();
+    requestAnimationFrame(run);
+  }
 
   /*
 

@@ -1,5 +1,6 @@
-function CustomShape(x, y, w, h, r, g, b, a, context) {
+function CustomShape(x, y, w, h, r, g, b, a, context, canvas, speedX, speedY) {
   // Member properties
+  this.canvas = canvas;
   this.context = context;
   this.x = x;
   this.y = y;
@@ -16,8 +17,8 @@ function CustomShape(x, y, w, h, r, g, b, a, context) {
   this.innerX = this.x + this.innerW / 2;
   this.innerY = this.y + this.innerH / 2;
 
-  this.speedX = 1;
-  this.speedY = 4;
+  this.speedX = speedX;
+  this.speedY = speedY;
 
   this.display = function () {
 
@@ -26,4 +27,22 @@ function CustomShape(x, y, w, h, r, g, b, a, context) {
     this.context.fillRect(this.x, this.y, this.w, this.h);
     this.context.clearRect(this.innerX, this.innerY, this.innerW, this.innerH);
   }
+
+  this.update = function () {
+    if ((this.x + this.w) > this.canvas.width || this.x < 0) {
+      this.speedX *= -1;
+    }
+    if ((this.y + this.h) > this.canvas.height || this.y < 0) {
+      this.speedY *= -1;
+    }
+
+    this.x += this.speedX;
+    this.y += this.speedY;
+
+    this.innerX += this.speedX;
+    this.innerY += this.speedY;
+
+
+  }
+
 }
