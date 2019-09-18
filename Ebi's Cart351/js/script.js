@@ -9,6 +9,44 @@ References:
 https://codemyui.com/split-in-half-text-animation/
 
 ******************/
+
+window.onload = function(){
+let handleClick = function (event){
+let parent = this.id;
+  //let subMenu = document.createElement("div");;
+  console.log("target:" + parent);
+
+  // TODO: Animate it instead of going to other page
+  if (parent === "exercises") {
+    window.location.assign("/exercises.html");
+
+  } else if (parent === "project") {
+    window.location.assign("/project.html");
+
+  } else if (parent === "reflections") {
+
+  } else if (parent === "presentation") {
+    window.location.assign("/presentation.html");
+  }
+  //parent.appendChild(subMenu);
+};
+  let exercises = document.getElementById('exercises');
+  let project = document.getElementById('project');
+  let reflections = document.getElementById('reflections');
+  let presentation = document.getElementById('presentation');
+  // QUESTION: I don't know why  document.getElementsByClassName() doesn't work
+  exercises.addEventListener('click', handleClick);
+  project.addEventListener('click', handleClick);
+  reflections.addEventListener('click', handleClick);
+  presentation.addEventListener('click', handleClick);
+}
+
+
+
+
+
+
+// QUESTION: Does not work
 // Variables for jQuery
 let $menu = $('.Menu-list');
 let $item = $('.Menu-list-item');
