@@ -18,15 +18,15 @@ let parent = this.id;
 
   // TODO: Animate it instead of going to other page
   if (parent === "exercises") {
-    window.location.assign("/exercises.html");
+    window.location.assign("https://hybrid.concordia.ca/e_badaw/cart351/exercises.html");
 
   } else if (parent === "project") {
-    window.location.assign("/project.html");
+    window.location.assign("https://hybrid.concordia.ca/e_badaw/cart351/project.html");
 
   } else if (parent === "reflections") {
 
   } else if (parent === "presentation") {
-    window.location.assign("/presentation.html");
+    window.location.assign("https://hybrid.concordia.ca/e_badaw/cart351/presentation.html");
   }
   //parent.appendChild(subMenu);
 };
