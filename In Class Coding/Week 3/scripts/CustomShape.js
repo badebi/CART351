@@ -45,4 +45,21 @@ function CustomShape(x, y, w, h, r, g, b, a, context, canvas, speedX, speedY) {
 
   }
 
+  this.hitTest = function() {
+    // doesn't work
+    if (Math.sqrt(Math.pow((event.clientX - (this.x + (this.w /2))), 2) + Math.pow((event.clientY - (this.y + (this.h /2))), 2) < (this.w / 2))) {
+      console.log("rect was hit");
+    }
+
+
+
+
+
+
+
+
+
+
+  }
+
 }
