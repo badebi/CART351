@@ -10,25 +10,24 @@ https://codemyui.com/split-in-half-text-animation/
 
 ******************/
 
-window.onload = function(){
-let handleClick = function (event){
-let parent = this.id;
-  //let subMenu = document.createElement("div");;
-  console.log("target:" + parent);
+window.onload = function() {
+  let handleClick = function(event) {
+    let parent = this.id;
+    //let subMenu = document.createElement("div");;
+    console.log("target:" + parent);
 
-  // TODO: Animate it instead of going to other page ---> the line expands and other options appear
-  if (parent === "one") {
-    window.location.assign("https://github.com/badebi/CART351/tree/master/Ebi's%20Cart351");
+    // TODO: Animate it instead of going to other page ---> the line expands and other options appear
+    if (parent === "one") {
+      window.location.assign("https://github.com/badebi/CART351/tree/master/Ebi's%20Cart351");
+    } else if (parent === "two") {
+      window.location.assign("https://badebi.github.io/CART351/Exercises/Exercise2/Exercise2A.html");
+    } else if (parent === "three") {
+      window.location.assign("https://badebi.github.io/CART351/Exercises/Exercise2/Exercise2B.html");
+    } else if (parent === "four") {
 
-  } else if (parent === "two") {
-
-  } else if (parent === "three") {
-
-  } else if (parent === "four") {
-
-  }
-  //parent.appendChild(subMenu);
-};
+    }
+    //parent.appendChild(subMenu);
+  };
   let one = document.getElementById('one');
   let two = document.getElementById('two');
   let three = document.getElementById('three');
