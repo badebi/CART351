@@ -36,6 +36,7 @@ function CustomShape(x, y, w, h, r, g, b, a, speedX, speedY, rectID, theContext,
     this.col = "rgba(" + this.r + "," + this.g + "," + this.b + "," + this.a + ")";
     this.context.fillStyle = this.col;
 
+    // ---------------------------------------------------- rotating -----------------------
     // at this moment you would have said pushMatrix() in p5 ;
     this.context.save();
     this.context.translate(this.x + this.w / 2, this.y + this.h / 2);
@@ -49,6 +50,7 @@ function CustomShape(x, y, w, h, r, g, b, a, speedX, speedY, rectID, theContext,
 
     // like popMatrix();
     this.context.restore();
+    // ---------------------------------------------------------------------------------
 
   }
 

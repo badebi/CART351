@@ -1,0 +1,152 @@
+<html>
+
+<head>
+  <title> FILE API TEST </title>
+  <style>
+    body,
+    input,
+    p,
+    div {
+      margin: 0;
+      padding: 0;
+    }
+
+    .wrapper {
+      background: #0ea6a4;
+      display: inline-table;
+      margin: 1%;
+      width: 25%;
+      padding: 2%;
+    }
+
+    img {
+      width: 90%;
+    }
+
+    #dropTarget {
+      width: 20%;
+      height: 200px;
+      background: rgba(125, 125, 125, 0.5);
+    }
+  </style>
+
+  <script>
+    window.onload = function() {
+
+      //  ----------------------------------------------------------
+      let customFileHandler = function(event) {
+        // get the file list ...
+        const selectedFileList = this.files;
+        console.log(selectedFileList);
+        const numFiles = selectedFileList.length;
+        console.log("the number of files selected:: " + numFiles);
+        for (let i = 0; i < numFiles; i++) {
+          console.log("name:: " + selectedFileList[i].name);
+          console.log("size:: " + selectedFileList[i].size + " bytes");
+          console.log("file type:: " + selectedFileList[i].type);
+        }
+      }
+
+      // -------------------------------------------------------------
+
+
+      // WE MUST stop the default behaviour that the event would perform ...
+
+      function dragEnterFile(event) {
+        console.log("dragging")
+        // getting rid of default behaviour
+        event.stopPropagation();
+        event.preventDefault();
+      }
+
+      function handleDropFile(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        // get the data transfer object :: holds info about what was dropped  -
+        const dataTransferObj = event.dataTransfer;
+        console.log(dataTransferObj);
+        const files = dataTransferObj.files;
+        // now call the handleFiles function ...
+        handleFiles(files);
+      }
+
+
+      /* handle what should we do with the files... */
+      function handleFiles(selectedFileList) {
+        console.log(selectedFileList);
+        const numFiles = selectedFileList.length;
+        console.log("the number of files selected:: " + numFiles);
+        for (let i = 0; i < numFiles; i++) {
+          console.log("name:: " + selectedFileList[i].name);
+          console.log("size:: " + selectedFileList[i].size + " bytes");
+          console.log("file type:: " + selectedFileList[i].type);
+        }
+      }
+
+      // ---------------------------------------------------------------------
+
+      /*handle reading and viewing of image file */
+      function readAndHandleImageFile() {
+        // get the file list ...
+        const selectedFileList = this.files;
+        const file = selectedFileList[0];
+        // to make sure that it's an image
+        if (file.type.startsWith('image/')) {
+
+          const img = document.createElement("img"); // create a new image element
+
+          const reader = new FileReader();
+          // add an event listener for once the file has been read successfully by the  readAsDataURL function ..
+
+          reader.addEventListener("load", function() {
+            // get the result which has been formatted as  data:URL - (the encoded image)
+            console.log(reader.result);
+            img.src = reader.result;
+            // append to the document
+            document.getElementsByClassName("wrapper")[1].appendChild(img);
+
+          });
+
+          reader.readAsDataURL(file);
+        } //end if
+
+      } //end event handler
+
+      // ----------------------------------------------------------------------
+
+      document.getElementById('inputTest').addEventListener('change', customFileHandler);
+
+      // ----------------------------------------------------------------------
+
+      /* access the drop box */
+      let dropbox;
+      dropbox = document.getElementById("dropTarget");
+      console.log(dropbox);
+      dropbox.addEventListener("dragenter", dragEnterFile, false); // when enter
+      dropbox.addEventListener("dragover", dragEnterFile, false); //when over
+      dropbox.addEventListener("drop", handleDropFile, false); //when dropped
+
+      // ----------------------------------------------------------------------
+
+      document.getElementById('inputImage').addEventListener('change', readAndHandleImageFile);
+
+
+    }
+  </script>
+
+</head>
+
+<body>
+  <div class="wrapper">
+    <p> The drop target:: </p>
+    <div id="dropTarget"></div>
+    <input type="file" multiple id="inputTest">
+  </div>
+
+  <div class="wrapper">
+    <p> Input an Image:: </p>
+    <input type="file" id="inputImage">
+  </div>
+</body>
+
+</html>

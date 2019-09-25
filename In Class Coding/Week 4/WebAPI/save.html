@@ -1,0 +1,60 @@
+<html>
+<head>
+  <title> Save to Local Storage </title>
+
+  <style>
+    #c {
+        background-color: #3e181b;
+        border: 3px solid #db1d2d;}
+
+    #d {
+        background-color: #422018;
+        border: 3px solid #f0421c;}
+
+    #e {
+        background-color: #45391b;
+        border: 3px solid #fec02d;}
+
+    body{
+          background:black;
+        }
+
+        .theButtons {
+        width: 10vw; /*(1/10th) viewport width */
+        height: 10vw;
+        margin-left: 5%;
+        margin-top: 1%;
+        display:inline-block;
+        color:white;
+      }
+    .wrapper{
+      margin-left:30%;
+      margin-top:15%;
+    }
+
+    .titleBar {
+      width:90%;
+      text-align: center;
+      padding:5%;
+
+    }
+    .not-active{
+        background-color:rgba(255,255,255,0.25);
+    }
+    .active{
+        background-color:rgba(255,0,255,0.25);
+
+    }
+    </style>
+  <!-- REFERENCE OUR SCRIPTS -->
+  <script type="text/javascript" src="js/saveStateEx.js"></script>
+</head>
+
+<body>
+  <div class = "wrapper">
+    <div id = "c" class = "theButtons"><p id = "May" class = "titleBar not-active"> MAY</p></div>
+    <div id = "d" class = "theButtons"><p id = "June" class = "titleBar not-active"> JUNE</p></div>
+    <div id = "e" class = "theButtons"><p id = "July" class = "titleBar not-active"> JULY</p></div>
+  </div>
+</body>
+</html>
