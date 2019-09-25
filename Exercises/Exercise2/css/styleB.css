@@ -1,0 +1,38 @@
+.box {
+  width: 10vw;
+  /*(1/10th) viewport width */
+  height: 10vw;
+  margin-left: 1%;
+  margin-top: 1%;
+  display: inline-block;
+}
+
+#c {
+  background-color: #3e181b;
+  border: 3px solid #db1d2d;
+}
+
+#d {
+  background-color: #422018;
+  border: 3px solid #f0421c;
+}
+
+#e {
+  background-color: #45391b;
+  border: 3px solid #fec02d;
+}
+
+body {
+  background: black;
+}
+
+.wrapper {
+  margin-left: 30%;
+  margin-top: 15%;
+}
+
+canvas {
+  background: black;
+  width: 100%;
+  height: 100%;
+}

@@ -8,6 +8,19 @@ window.onload = function() {
     displayText.textContent = `This is Text For Box ${this.id}`;
     displayText.style.display = "inline-block";
 
+    switch (this.id) {
+      case "C":
+        //console.log(this.style);
+        displayText.style.background = "#3e181b";
+        break;
+      case "D":
+        displayText.style.background = "#422018";
+        break;
+      case "E":
+        displayText.style.background = "#45391b";
+        break;
+    }
+
     // hide the text when it's been clicked
     displayText.addEventListener('click', function() {
       displayText.style.display = "none";
