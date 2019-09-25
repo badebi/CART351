@@ -1,0 +1,41 @@
+#c {
+  background-color: #3e181b;
+  border: 3px solid #db1d2d;
+}
+
+#d {
+  background-color: #422018;
+  border: 3px solid #f0421c;
+}
+
+#e {
+  background-color: #45391b;
+  border: 3px solid #fec02d;
+}
+
+body {
+  background: black;
+}
+
+.para {
+  color: white;
+  font-size: 22pt;
+  background: purple;
+  margin-left: 1%;
+  margin-top: 1%;
+  padding: 1%;
+}
+
+.box {
+  width: 10vw;
+  /*(1/10th) viewport width */
+  height: 10vw;
+  margin-left: 1%;
+  margin-top: 1%;
+  display: inline-block;
+}
+
+.wrapper {
+  margin-left: 30%;
+  margin-top: 15%;
+}
