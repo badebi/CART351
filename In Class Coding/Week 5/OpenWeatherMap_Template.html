@@ -1,0 +1,129 @@
+<!DOCTYPE HTML>
+<!-- https://home.openweathermap.org/ -->
+<html>
+<head>
+<title>Open Weather Example</title>
+<style>
+body{
+  width:100%;
+}
+
+header{
+  color:#9e66b4;
+}
+
+
+#contentContainer{
+  display: flex;
+  flex-wrap: wrap;
+  width:100%;
+  margin:0;
+}
+
+#ResWeather{
+  width:100%;
+}
+#titleContainer{
+  width:90%;
+  background:#9e66b4;
+  text-align:center;
+  color:white;
+  margin-left:1%;
+}
+#contentContainer > .aCellImage {
+  width:10%;
+  background-color: #9e66b4;
+  margin-left:1%;
+}
+
+#contentContainer > .aCell {
+  width:80%;
+  background-color: #9e66b4;
+  margin:0%;
+  color:white;
+  font-size: 16px;
+}
+
+
+img{
+  width:80%;
+}
+
+.flexSearch{
+  display: flex;
+  flex-wrap: wrap;
+  width:100%;
+  margin:0;
+
+}
+
+.flexSearch>.searchCrit{
+  background:#cdb2d7;
+  padding:2%;
+  border-color: #9e66b4;
+  border-width:2px;
+  border-style: solid;
+  width:40%;
+  margin:1%;
+}
+.searchCrit p {
+  background:white;
+  color:#9e66b4;
+  font-weight: bold;
+  padding:2px;
+  font-size:1.2em;
+}
+</style>
+<script src = "jquery/jquery-3.4.1.js"></script>
+<script>
+$(document).ready(function(){
+//http://api.openweathermap.org/data/2.5/forecast?id=524901&APPID={APIKEY}
+let myKey = "0bef928982350078b0d564afdd383f25";
+
+
+$("#searchButton").click(getWeatherByCity);
+$("#buttonLocation").click(getWeatherByLoc);
+
+/**** get weather by user location **/
+function getWeatherByLoc(){
+console.log("get loc");
+
+}
+
+
+/**** get weather by city input **/
+function getWeatherByCity(){
+console.log("get city");
+} //getWeather
+
+});
+</script>
+</head>
+
+<body>
+  <header>
+  <h1>
+  	Enter in the search criteria for weather:
+  </h1>
+</header>
+<div class = "flexSearch">
+<div class = "searchCrit">
+  <p>Type in a search keyword:</p>
+  <input type="text" id="citySearch" value="city" />
+  <input type="button" value="Search!" id="searchButton" />
+</div>
+<div class = "searchCrit">
+  <p>Or search by your location::: </p>
+  <input type="button" value="Search!" id="buttonLocation" />
+</div>
+</div>
+
+
+  <div id  = "ResWeather">
+    <div id = "titleContainer"> </div>
+    <div id = "contentContainer"> </div>
+
+  </div>
+
+</body>
+</html>
