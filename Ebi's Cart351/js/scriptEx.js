@@ -24,7 +24,7 @@ window.onload = function() {
     } else if (parent === "three") {
       window.location.assign("https://badebi.github.io/CART351/Exercises/Exercise2/Exercise2B.html");
     } else if (parent === "four") {
-
+      window.location.assign("https://badebi.github.io/CART351/Exercises/Exercise3/index.html");
     }
     //parent.appendChild(subMenu);
   };
