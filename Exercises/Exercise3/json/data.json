@@ -1,7 +1,7 @@
 {
 	"Label": "Daily Activities",
 	"Days": [{
-			"Date": "Wednesday, October 2 2019",
+			"Date": "Wednesday",
 			"Breakdown": {
 				"Sleeping": "4h 25min",
 				"Staring at the ceiling": "3h 2min",
@@ -16,7 +16,7 @@
 		},
 
 		{
-			"Date": "Thursday, October 3 2019",
+			"Date": "Thursday",
 			"Breakdown": {
 				"Sleeping": "7h 10min",
 				"Staring at the ceiling": "1h 37min",
@@ -31,7 +31,7 @@
 		},
 
 		{
-			"Date": "Friday, October 4 2019",
+			"Date": "Friday",
 			"Breakdown": {
 				"Sleeping": "2h 12min",
 				"Staring at the ceiling": "51min",
@@ -46,7 +46,7 @@
 		},
 
 		{
-			"Date": "Sunday, October 5 2019",
+			"Date": "Sunday",
 			"Breakdown": {
 				"Sleeping": "12h 13min",
 				"Staring at the ceiling": "12min",
