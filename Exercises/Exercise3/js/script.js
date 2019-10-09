@@ -19,7 +19,7 @@ function dataLoaded(data) {
     let found = false;
     let targetDates = [];
     for (var i = 0; i < data.Days.length; i++) {
-      if (data.Days[i].Date.toLowerCase().match(searchVal)) {
+      if (data.Days[i].Date.toLowerCase().match(searchVal) && searchVal != "") {
         console.log(`Day Found and it is ${data.Days[i].Date}`);
         targetDates.push(i);
         found = true;
@@ -29,7 +29,7 @@ function dataLoaded(data) {
     if (!found) {
       console.log("invalid entery");
     } else {
-      header.empty(); 
+      header.empty();
       section.empty();
 
       console.log(targetDates);
