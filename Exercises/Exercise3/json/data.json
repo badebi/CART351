@@ -1,0 +1,63 @@
+{
+	"Label": "Daily Activities",
+	"Days": [{
+			"Date": "Wednesday, October 2 2019",
+			"Breakdown": {
+				"Sleeping": "4h 25min",
+				"Staring at the ceiling": "3h 2min",
+				"Cellphone Screen Time": {
+					"Total": "3h 20min",
+					"Social Networking": "2h 23min",
+					"Productivity": "11min",
+					"Education": "none",
+					"Entertainment": "3min"
+				}
+			}
+		},
+
+		{
+			"Date": "Thursday, October 3 2019",
+			"Breakdown": {
+				"Sleeping": "7h 10min",
+				"Staring at the ceiling": "1h 37min",
+				"Cellphone Screen Time": {
+					"Total": "3h 16min",
+					"Social Networking": "52min",
+					"Productivity": "27min",
+					"Education": "21min",
+					"Entertainment": "none"
+				}
+			}
+		},
+
+		{
+			"Date": "Friday, October 4 2019",
+			"Breakdown": {
+				"Sleeping": "2h 12min",
+				"Staring at the ceiling": "51min",
+				"Cellphone Screen Time": {
+					"Total": "4h 31min",
+					"Social Networking": "1h 8min",
+					"Productivity": "48min",
+					"Education": "1h 9min",
+					"Entertainment": "none"
+				}
+			}
+		},
+
+		{
+			"Date": "Sunday, October 5 2019",
+			"Breakdown": {
+				"Sleeping": "12h 13min",
+				"Staring at the ceiling": "12min",
+				"Cellphone Screen Time": {
+					"Total": "4h 25min",
+					"Social Networking": "2h 8min",
+					"Productivity": "19min",
+					"Education": "none",
+					"Entertainment": "23min"
+				}
+			}
+		}
+	]
+}
