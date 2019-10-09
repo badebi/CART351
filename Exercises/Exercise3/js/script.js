@@ -81,21 +81,6 @@ function dataLoaded(data) {
     $(listItem5).text("Entertainment: " + searchResult.Breakdown.Cellphone_Screen_Time.Entertainment);
 
 
-
-    // $(samplePara2).text(searchResult.Genre);
-    // $(samplePara3).text(searchResult.Detail.Publisher);
-    // $(samplePara4).text(searchResult.Detail.Publication_Year);
-
-
-    // let bookPrices = searchResult.Price;
-
-
-    // for (let j = 0; j < bookPrices.length; j++) {
-    //   let listItem = $('<li>');
-    //   $(listItem).text("type:: " + bookPrices[j].type + " & price:: $" + bookPrices[j].price);
-    //   $(listItem).appendTo(sampleList);
-    // }
-
     $(sampleDateH2).appendTo(sampleDateArticle);
     $(samplePara1).appendTo(sampleDateArticle);
     $(samplePara2).appendTo(sampleDateArticle);
@@ -105,7 +90,7 @@ function dataLoaded(data) {
     $(listItem3).appendTo(sampleList);
     $(listItem4).appendTo(sampleList);
     $(listItem5).appendTo(sampleList);
-    // $(samplePara4).appendTo(sampleDateArticle);
+
     $(sampleList).appendTo(sampleDateArticle);
 
     $(section).append(sampleDateArticle);

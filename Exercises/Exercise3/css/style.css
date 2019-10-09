@@ -106,7 +106,7 @@ body {
 
 
 
-/* html {
+ html {
   font-family: 'helvetica neue', helvetica, arial, sans-serif;
 }
 
@@ -115,11 +115,13 @@ body {
 }
 
 
-h1 {
+
+/* h1 {
   margin-left: 30vw;
-}
+} */
 
 header p {
+
   font-weight: bold;
   margin-left: 30vw;
 }
@@ -130,7 +132,11 @@ section {
 
 
 section article {
-  margin-left: 2%;
+  border-radius: 15%;
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform:  translate(-50%,50%);
   margin-right: 20%;
   margin-bottom: 2%;
   background: #b4e4f6;
@@ -152,9 +158,3 @@ h2 {
   letter-spacing: -5px;
   margin-bottom: 10px;
 }
-
-#getData {
-  background: orange;
-  width: 100px;
-  margin: 2%;
-} */
