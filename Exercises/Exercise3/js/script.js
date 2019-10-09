@@ -29,7 +29,7 @@ function dataLoaded(data) {
     if (!found) {
       console.log("invalid entery");
     } else {
-      header.empty();
+      header.empty(); 
       section.empty();
 
       console.log(targetDates);
@@ -49,6 +49,7 @@ function dataLoaded(data) {
   });
 
   function populateHeader(label) {
+
     let sampleHeader = $("<h1>");
     $(sampleHeader).text(label);
     $(sampleHeader).appendTo(header);
@@ -57,7 +58,7 @@ function dataLoaded(data) {
   function showResults(searchResult) {
 
     let sampleDateArticle = $('<article>');
-    let sampleDateH2 = $("<h1>");
+    let sampleDateH2 = $("<h2>");
     let samplePara1 = $("<p>");
     let samplePara2 = $("<p>");
     let samplePara3 = $("<p>");
