@@ -16,9 +16,23 @@ if($_FILES)
     $fname = $_FILES['filename']['name'];
     move_uploaded_file($_FILES['filename']['tmp_name'], "images/".$fname);
 
+    // PHP object with arrow notation
+    //package the data and echo back...
+    $myPackagedData=new stdClass();
+    $myPackagedData->artist = $artist ;
+    $myPackagedData->title = $title ;
+    $myPackagedData->location = $loc ;
+    $myPackagedData->description = $description ;
+    $myPackagedData->creation_Date = $creationDate ;
+    $myPackagedData->fileName = $fname ;
+     // Now we want to JSON encode these values to send them to $.ajax success.
+    $myJSONObj = json_encode($myPackagedData);
+    echo $myJSONObj;
+
+
     // this is gonna be the response for AJAX
-    echo "SUCCESS";
-    // you have to exit to not have the whole html script in console 
+    // echo "SUCCESS";
+    // you have to exit to not have the whole html script in console
     exit;
 	}
 
@@ -87,6 +101,9 @@ if($_FILES)
             //reponse is a STRING (not a JavaScript object -> so we need to convert)
             console.log("we had success!");
             console.log(response);
+
+            let parsedData = JSON.parse(response);
+            console.log(parsedData);
            },
            error:function(){
           console.log("error occurred");
