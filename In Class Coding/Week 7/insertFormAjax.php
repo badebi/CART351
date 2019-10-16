@@ -11,15 +11,15 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 // echo($artist);
 if($_FILES)
 	{
-    echo "file name: ".$_FILES['filename']['name'] . "<br />";
-    echo "path to file uploaded: ".$_FILES['filename']['tmp_name']. "<br />";
+    // echo "file name: ".$_FILES['filename']['name'] . "<br />";
+    //echo "path to file uploaded: ".$_FILES['filename']['tmp_name']. "<br />";
     $fname = $_FILES['filename']['name'];
     move_uploaded_file($_FILES['filename']['tmp_name'], "images/".$fname);
 
-
-
-
-
+    // this is gonna be the response for AJAX
+    echo "SUCCESS";
+    // you have to exit to not have the whole html script in console 
+    exit;
 	}
 
 }
@@ -38,7 +38,8 @@ if($_FILES)
 
 <div class= "formContainer">
 <!--form done using more current tags... -->
-<form action="insertForm.php" method="post" enctype ="multipart/form-data">
+<!-- NO ACTION NO METHOD -->
+<form action="" id = "insertGallery"  enctype ="multipart/form-data">
 <!-- group the related elements in a form -->
 <h3> SUBMIT AN ART WORK :::</h3>
 <fieldset>
@@ -53,4 +54,49 @@ if($_FILES)
 </form>
 </div>
 </body>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    console.log("window Loaded");
+    // check if submit button is pressed
+    $("#insertGallery").submit(function(event) {
+      // don't do shit unless I tell you what to do
+      event.preventDefault();
+      console.log("button clicked");
+
+      // TODO: READ ABOUT THIS SHIT
+      let form = $("#insertGallery")[0];
+      let data = new FormData(form);
+
+      // FOR DEBUGGING
+      for (let valuePairs of data.entries()) {
+        console.log(valuePairs[0] + "," + valuePairs[1]);
+      };
+
+      // Now AJAX comes in
+      $.ajax({
+            type: "POST",
+            enctype: 'multipart/form-data',
+            url: "insertFormAjax.php",
+            data: data,
+            processData: false,//prevents from converting into a query string -----> GET req and POST req differences
+            contentType: false,
+            cache: false,
+            timeout: 600000,
+            success: function (response) {
+            //reponse is a STRING (not a JavaScript object -> so we need to convert)
+            console.log("we had success!");
+            console.log(response);
+           },
+           error:function(){
+          console.log("error occurred");
+        }
+      });
+
+
+    });
+  });
+</script>
+
+
 </html>
