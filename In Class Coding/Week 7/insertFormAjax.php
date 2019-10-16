@@ -104,6 +104,8 @@ if($_FILES)
 
             let parsedData = JSON.parse(response);
             console.log(parsedData);
+            // now it's time to display the shit
+            displayResponse(parsedData);
            },
            error:function(){
           console.log("error occurred");
@@ -111,7 +113,34 @@ if($_FILES)
       });
 
 
-    });
+    }); // submit
+
+    // validate and process form here
+        function displayResponse(theResult){
+          let container = $('<div>').addClass("outer");
+          let title = $('<h3>');
+          $(title).text("Results from user");
+          $(title).appendTo(container);
+          let contentContainer = $('<div>').addClass("content");
+          for (let property in theResult) {
+            console.log(property);
+            if(property ==="fileName"){
+              let img = $("<img>");
+              $(img).attr('src','images/'+theResult[property]);
+
+              $(img).appendTo(contentContainer);
+            }
+            else{
+              let para = $('<p>');
+              $(para).text(property+"::" +theResult[property]);
+                $(para).appendTo(contentContainer);
+            }
+
+          }
+          $(contentContainer).appendTo(container);
+          $(container).appendTo("#result");
+        }
+
   });
 </script>
 
