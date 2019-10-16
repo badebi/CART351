@@ -1,3 +1,20 @@
+<?php
+  if ($_SERVER['REQUEST_METHOD'] == "POST") {
+    $name = $_POST['a_name'];
+    $des = $_POST['a_descript'];
+    $choice = $_POST['tempChoice'];
+    // echo "$choice";
+    // exit;
+    $theFile = fopen("files/fileA.txt","a") or die("unable to open");
+    // you have to structure your file
+    fwrite($theFile, $name."\n");
+    fwrite($theFile, $des."\n");
+    fwrite($theFile, $choice."\n");
+    fclose($theFile);
+    exit;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+  }
+ ?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -40,9 +57,26 @@ $(document).ready (function(){
      for (let valuePairs of data.entries()) {
        console.log(valuePairs[0]+ ', ' + valuePairs[1]);
      }
-  });
-   });
+     $.ajax({
+       type: "POST",
+       enctype: "text/plain",
+       url: "formExWithFileTemplate.php",
+       data: data,
+       processData: false,
+       contentType: false,
+       cach: false,
+       timeout: 600000,
+       success: function (response) {
+         console.log("success");
+         console.log(response);
+       },
+       error: function () {
+         console.log("error");
+       }
+     });
 
+   });
+});
 </script>
 </body>
 </html>
