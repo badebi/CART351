@@ -1,7 +1,4 @@
 <?php
-
-session_start();
-
 echo (session_id());
 
 if($_SERVER['REQUEST_METHOD'] == 'POST')
@@ -9,8 +6,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
   //logs the values in array (is to help ... )
   //var_dump($_POST);
 
-  $_SESSION['a_name'] = $_POST['a_name'];
-  $_SESSION['a_email'] = $_POST['a_email'];
+  //$name = $_POST['a_name'];
+  //$email = $_POST['a_email'];
 
   /* Step 1:
   Get the temperature value (a_temp): is a string so we need to convert to a number using the in built function intval()
@@ -24,15 +21,22 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
   To convert from Fahrenheit to Celsius: Celsius = (5 / 9) * (Fahrenheit – 32)
   To convert from Celsius to Fahrenheit: Fahrenheit = (9 / 5) * Celsius + 32
 */
-  $_SESSION['tempChoice'] = $_POST["tempChoice"];
-  if ($_SESSION['tempChoice'] == "Celsius") {
+  $tempChoice = $_POST["tempChoice"];
+  if ($tempChoice == "Celsius") {
     $resultTemp = ((5 / 9) * ($temp - 32));
 
-  } elseif ($_SESSION['tempChoice'] == "Fahrenheit") {
+  } elseif ($tempChoice == "Fahrenheit") {
     $resultTemp = ((9 / 5) * ($temp + 32));
   }
-  $_SESSION['resultTemp'] = intval($resultTemp);
+
+
+  $theFile = fopen("files/file.txt","a") or die("unable to open");
+  // you have to structure your file
+  fwrite($theFile, $tempChoice."\n");
+  fwrite($theFile, $resultTemp."\n");
+  fclose($theFile);
   header("location:tempResult.php");
+  exit;
   return;
 
   // echo "$resultTemp";
