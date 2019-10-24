@@ -168,3 +168,5 @@ Fahrenheit
 82.8
 Fahrenheit
 82.8
+Fahrenheit
+138.6
