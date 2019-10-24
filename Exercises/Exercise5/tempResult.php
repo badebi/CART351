@@ -73,6 +73,9 @@ $(document).ready (function(){
   //choose what you are going to do with your canvas
   let ctx = canvas.getContext("2d");
 
+  let temp = 0.0;
+  let unit = "";
+
   ctx.canvas.width  = window.innerWidth;
   ctx.canvas.height = window.innerHeight;
 
@@ -94,31 +97,85 @@ $(document).ready (function(){
 
      function displayResults(parsedJSON) {
 
-       let tempEntered = parsedJSON[parsedJSON.length - 1][1];
-       let unitToConvertTo = parsedJSON[parsedJSON.length - 1][0];
+       temp = Number.parseFloat(parsedJSON[parsedJSON.length - 1][1]).toFixed(1);
+       unit = parsedJSON[parsedJSON.length - 1][0];
 
-       console.log(`temp is: ${tempEntered} ${unitToConvertTo}`);
+       //console.log(`temp is: ${tempEntered} ${unitToConvertTo}`);
 
-       run(parsedJSON);
+       //run(parsedJSON);
 
-       //requestAnimationFrame(run);
+       requestAnimationFrame(run);
      }
 
-     function run(parsedJSON) {
+     let index = 0.1;
+     function run() {
 
        console.log("in the run");
        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+       // TODO: ADD LIMITS
+
        ctx.fillStyle = "#ffffff";
-       //ctx.fillRect(canvas.width/2, (canvas.height / 2), 50, tempEntered * 10);
-       console.log(parsedJSON[parsedJSON.length - 1][1]);
-       let temp = parsedJSON[parsedJSON.length - 1][1];
-       ctx.fillRect(canvas.width/2, canvas.height / 2 , 7, parsedJSON[parsedJSON.length - 1][1] * (-2));
-       ctx.font = '42px Black Ops One'
-       ctx.fillText(parsedJSON[parsedJSON.length - 1][0],(canvas.width/2) + 7,canvas.height / 2);
+       // ctx.fillRect(canvas.width/2, (canvas.height / 2), 50, tempEntered * 10);
+       // console.log(parsedJSON[parsedJSON.length - 1][1]);
+       //let temp = Number.parseFloat(parsedJSON[parsedJSON.length - 1][1]).toFixed(1);
+       ctx.font = '42px Black Ops One';
+       ctx.textAlign = 'left';
+       ctx.fillText(unit, (canvas.width/2) + 15, canvas.height / 2);
+
+       if (index > (temp - 2) && index < (temp + 2)) {
+         index = 0.0;
+         ctx.textAlign = 'right';
+         if (temp > 0) {
+           ctx.fillRect(canvas.width/2, canvas.height / 2 , 15, getMax(canvas.height /(-2) + (canvas.height/5), temp * (-2)));
+           ctx.fillText(temp, (canvas.width/2), getMax((canvas.height / 2) + (temp * (-2) + 21 ), canvas.height /5));
+         } else {
+           ctx.fillRect(canvas.width/2, canvas.height / 2 , 15, getMin((canvas.height /2) - (canvas.height/5), temp * (-2)));
+           ctx.fillText(temp, (canvas.width/2), getMin((canvas.height / 2) + (temp * (-2) + 21 ), 4 * canvas.height / 5));
+         }
+
+       }
+
+       if (temp > 0 && index != 0) {
+
+           ctx.fillRect(canvas.width/2, canvas.height / 2 , 15, getMax(canvas.height /(-2) + (canvas.height/5), index * (-2)));
+           ctx.textAlign = 'right';
+           ctx.fillText(index.toFixed(1), (canvas.width/2), getMax((canvas.height / 2) + (index * (-2) + 21 ), canvas.height /5));
+           index += 0.7;
+           requestAnimationFrame(run);
+       } else if (temp < 0 && index != 0){
+           ctx.fillRect(canvas.width/2, canvas.height / 2 , 15, getMin((canvas.height /2) - (canvas.height/5), index * (-2)));
+           ctx.textAlign = 'right';
+           ctx.fillText(index.toFixed(1), (canvas.width/2), getMin((canvas.height / 2) + (index * (-2) + 21 ), 4 * canvas.height / 5));
+           index -= 0.7;
+           requestAnimationFrame(run);
+
+       }
+
+
+       // ctx.fillRect(canvas.width/2, canvas.height / 2 , 7, temp * (-2));
+
+
+       // ctx.textAlign = 'right';
+       // ctx.fillText(temp, (canvas.width/2), (canvas.height / 2) + (temp * (-2) + 21 ));
        //requestAnimationFrame(run);
      }
 
+     function getMin(x, y) {
+       if (x<y) {
+         return x;
+       } else {
+         return y;
+       }
+     }
+
+     function getMax(x, y) {
+       if (x>y) {
+         return x;
+       } else {
+         return y;
+       }
+     }
 
 
 
