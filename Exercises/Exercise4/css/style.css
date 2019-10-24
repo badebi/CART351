@@ -1,0 +1,64 @@
+body {
+  font-family: 'Black Ops One', cursive;
+  background-color: white;
+}
+
+#phpEcho {
+  width: 40em;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  margin-top: 4em;
+}
+
+#form {
+  width: 40em;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  color: black;
+  padding: 25vh 0;
+}
+
+h1 {
+  text-align: center;
+}
+
+#radios {
+  padding-top: 42px;
+  padding-left: 20%;
+  text-align: left;
+  font-size: 1.5em;
+  width: 15em;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#textInput {
+  color: inherit;
+  font-family: 'Black Ops One', cursive;
+  font-size: 30px;
+  width: 42%;
+  padding-left: 15px;
+  background-color: inherit;
+  border: none;
+  border-bottom: 4px solid #000000;
+  border-radius: 5px;
+}
+
+#fsOne, #fsTwo {
+  border: none;
+}
+
+input[type=submit] {
+  background-color: #000000;
+  font-family: 'Black Ops One', cursive;
+  font-size: 42px;
+  border: none;
+  color: white;
+  padding: 18px 36px;
+  text-decoration: none;
+  margin: 5px 4px;
+  cursor: pointer;
+  border-radius: 5px;
+}
