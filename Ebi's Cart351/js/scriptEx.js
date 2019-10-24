@@ -25,6 +25,10 @@ window.onload = function() {
       window.location.assign("https://badebi.github.io/CART351/Exercises/Exercise2/Exercise2B.html");
     } else if (parent === "four") {
       window.location.assign("https://badebi.github.io/CART351/Exercises/Exercise3/index.html");
+    } else if (parent === "five") {
+      window.location.assign("https://hybrid.concordia.ca/e_badaw/cart351/excercises/Exercise4/exercise4.php");
+    } else if (parent === "six") {
+      window.location.assign("https://hybrid.concordia.ca/e_badaw/cart351/excercises/Exercise5/exercise5.php");
     }
     //parent.appendChild(subMenu);
   };
@@ -32,11 +36,16 @@ window.onload = function() {
   let two = document.getElementById('two');
   let three = document.getElementById('three');
   let four = document.getElementById('four');
+  let five = document.getElementById('five');
+  let six = document.getElementById('six');
   // QUESTION: I don't know why  document.getElementsByClassName() doesn't work
   one.addEventListener('click', handleClick);
   two.addEventListener('click', handleClick);
   three.addEventListener('click', handleClick);
   four.addEventListener('click', handleClick);
+  five.addEventListener('click', handleClick);
+  six.addEventListener('click', handleClick);
+
 }
 
 
