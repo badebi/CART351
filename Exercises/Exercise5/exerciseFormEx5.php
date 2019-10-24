@@ -53,6 +53,71 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 <head>
 <title>Sample Contact and FahrenHeit/Celsius Form </title>
 <!--set some style properties::: -->
+<link href="https://fonts.googleapis.com/css?family=Black+Ops+One&display=swap" rel="stylesheet">
+<style media="screen">
+
+  body{
+    font-family: 'Black Ops One', cursive;
+    background-color: Black;
+  }
+
+  #form{
+    width: 40em;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    color: white;
+    padding: 25vh 0;
+  }
+
+  h1 {
+    text-align: center;
+  }
+
+  #fsOne {
+
+  }
+
+  #radios{
+    padding-top: 42px;
+    padding-left: 20%;
+    text-align: left;
+    font-size: 1.5em;
+    width: 15em;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  #textInput{
+    color: inherit;
+    font-family: 'Black Ops One', cursive;
+    font-size: 30px;
+    width: 42%;
+    padding-left: 15px;
+    background-color: inherit;
+    border: none;
+    border-bottom: 4px solid #ffffff;
+    border-radius: 5px;
+  }
+
+  #fsOne, #fsTwo {
+    border: none;
+  }
+
+  input[type=submit] {
+    background-color: #ffffff;
+    font-family: 'Black Ops One', cursive;
+    font-size: 42px;
+    border: none;
+    color: black;
+    padding: 18px 36px;
+    text-decoration: none;
+    margin: 5px 4px;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+
+</style>
 
 </head>
 <body>
@@ -61,22 +126,24 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 <div class= "formContainer">
 <!--form -->
 <!-- You need an action att and a method att within the form tag -->
-<form action="exerciseFormEx5.php" method="POST" enctype =”multipart/form-data”>
+<form action="exerciseFormEx5.php" method="POST" enctype =”multipart/form-data” id="form">
 <!-- group the related elements in a form -->
-<h3> LET US SEND YOU A CONVERTED VALUE F->C or C->F</h3>
-<fieldset>
- <p><label>Name:</label><input type="text" size="40" maxlength = "40" name = "a_name" required> </p>
-<p><label>Email:</label> <input type ="email" size="40" maxlength = "40" name = 'a_email' required/></p>
+
+<h1> CONVERTE F->C or C->F </h1>
+<fieldset id="fsOne">
+ <p><label>NAME:</label><input type="text" size="40" maxlength = "40" name = "a_name" required id="textInput"> </p>
+ <p><label>EMAIL:</label> <input type ="email" size="40" maxlength = "40" name = 'a_email' required id="textInput"></p>
+</fieldset>
+<fieldset id="fsTwo">
+  <!-- ONLY number entries  -->
+  <p><label>TEMPERATURE:</label><input type="number" size="5" maxlength = "5" name = "a_temp" required id="textInput"> </p>
+
+    <p id="radios"><input type="radio" name="tempChoice" value="Celsius"> to CELSIUS<br>
+    <input type="radio" name="tempChoice" value="Fahrenheit"> to FAHRENHEIT<br></p>
 
 </fieldset>
-<fieldset>
-  <!-- ONLY number entries  -->
-  <p><label>Temperature Input:</label><input type="number" size="5" maxlength = "5" name = "a_temp" required> </p>
-  <p><input type="radio" name="tempChoice" value="Celsius"> Convert to Celsius<br>
-  <input type="radio" name="tempChoice" value="Fahrenheit"> Convert to Fahrenheit<br></p>
-  </fieldset>
 <!-- submit button  -->
- <p><input type = "submit" name = "submit" value = "submit and convert" id =buttonS /></p>
+ <p><input type = "submit" name = "submit" value = "CONVERT" id =buttonS></p>
 </form>
 </div>
 </body>
