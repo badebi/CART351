@@ -20,8 +20,8 @@ let parent = this.id;
   if (parent === "one") {
     window.location.assign("https://hybrid.concordia.ca/e_badaw/cart351/assets/Cart351_TheDistrbutedWeb.pdf");
   } else if (parent === "two") {
-
-  } 
+    window.location.assign("https://hybrid.concordia.ca/e_badaw/cart351/assets/Cart351_DistrubutedWebPresentationDocumentation.pdf");
+  }
   //parent.appendChild(subMenu);
 };
   let one = document.getElementById('one');
