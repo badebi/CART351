@@ -18,7 +18,7 @@ let parent = this.id;
 
   // TODO: Animate it instead of going to other page ---> the line expands and other options appear
   if (parent === "one") {
-
+    window.location.assign("https://hybrid.concordia.ca/e_badaw/cart351/assets/Cart351_TheDistrbutedWeb.pdf");
   } else if (parent === "two") {
 
   } 
