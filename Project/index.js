@@ -23,12 +23,18 @@ app.get('/', function(req, res) {
 app.get('/faceDetection', (req, res) => res.sendFile(__dirname + '/public/faceDetection.html'));
 
 app.get('/cam', (req, res) => res.sendFile(__dirname + '/public/captureAPI.html'));
+app.get('/webcam', (req, res) => res.sendFile(__dirname + '/public/webcamFaceLandmarkDetection.html'));
+app.get('/tiny_face_detector_model-weights_manifest.json', (req, res) => res.sendFile(__dirname + '/public/models/tiny_face_detector_model-weights_manifest.json'));
+
+
 
 let io = require('socket.io')(httpServer);
 
 // client side
 app.use(express.static(__dirname + '/node_modules'));
 app.use('/face-api', express.static(__dirname + '/node_modules/face-api.js/dist/'));
+
+
 
 // serever side
 // ___________________________________________________ HandShake

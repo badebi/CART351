@@ -19,7 +19,7 @@
 window.onload = function() {
   console.log("loaded");
   let video = document.getElementById("video");
-  let canvas = document.getElementById("testCanvas");
+  let canvas = document.getElementById("overlay");
   let context = canvas.getContext('2d');
 
 

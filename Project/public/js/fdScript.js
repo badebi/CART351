@@ -3,9 +3,12 @@ window.onload = function() {
   console.log("loaded");
   console.log(faceapi.nets);
   const video = document.getElementById("video");
+
+
   // loading models ... async
   // await ??
   // how can I load the models from node envirenment?
+
   Promise.all([
     faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
     faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
@@ -14,13 +17,9 @@ window.onload = function() {
   ]).then(startVideo);
 
 
+
   function startVideo() {
-    navigator.mediaDevices.getUserMedia({
-        video: {
-          width: 720,
-          height: 560
-        }
-      })
+    navigator.mediaDevices.getUserMedia({video: {}})
       .then(
         //stream is what is returned
         (stream) => {
@@ -33,10 +32,30 @@ window.onload = function() {
       });
   };
 
-  video.addEventListener('play', () => {
+  // video.addEventListener('play', () => {
+  //   console.log("video is live");
+  //
+  //
+  //   const canvas = faceapi.createCanvasFromMedia(video);
+  //   document.body.append(canvas);
+  //   const displaySize = { width: video.width, height: video.height};
+  //   faceapi.matchDimensions(canvas, displaySize);
+  //
+  //   setInterval(async () => {
+  //     const detections = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
+  //     const resizedDetections = faceapi.resizeResults(detections, displaySize);
+  //     //canvas.getContext('2D').clearRect(0,0,video.width,video.height);
+  //     faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
+  //   }, 100);
+  // });
+
+  video.addEventListener('play', detectFace);
+
+  async function detectFace() {
     console.log("video is live");
 
-    const canvas = faceapi.createCanvasFromMedia(video);
+
+    canvas = await faceapi.createCanvasFromMedia(video);
     document.body.append(canvas);
     const displaySize = { width: video.width, height: video.height};
     faceapi.matchDimensions(canvas, displaySize);
@@ -44,12 +63,11 @@ window.onload = function() {
     setInterval(async () => {
       const detections = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
       const resizedDetections = faceapi.resizeResults(detections, displaySize);
-      canvas.getContext('2D').clearRect(0, 0, canvas.width, canvas.height);
-      faceapi.draw.drawDetections(canvas, resizedDetections);
+
+      //canvas.getContext('2D').clearRect(0,0,video.width,video.height);
+      faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
     }, 100);
-  })
-
-
+  }
 }
 
 
