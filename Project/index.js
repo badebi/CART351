@@ -19,10 +19,16 @@ app.get('/', function(req, res) {
   console.log(req.url);
 });
 
+// Go to face detection page
+app.get('/faceDetection', (req, res) => res.sendFile(__dirname + '/public/faceDetection.html'));
+
+app.get('/cam', (req, res) => res.sendFile(__dirname + '/public/captureAPI.html'));
+
 let io = require('socket.io')(httpServer);
 
 // client side
 app.use(express.static(__dirname + '/node_modules'));
+app.use('/face-api', express.static(__dirname + '/node_modules/face-api.js/dist/'));
 
 // serever side
 // ___________________________________________________ HandShake

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>getUserMedia Demo</title>
+  <style>
+    main {
+      width: 50%;
+      margin: 0 auto;
+      background: grey;
+    }
+  </style>
+  <script type="text/javascript" src="js/getUserMedia.js"></script>
+
+</head>
+
+<body>
+
+  <h1>Access Camera Example</h1>
+  <main>
+    <!-- set video to hidden - we only  want it as a temp container for streaming  -->
+    <video id="video" autoplay="autoplay" controls="true" hidden></video>
+    <canvas id="testCanvas" width=640 height=240></canvas>
+  </main>
+</body>
+
+</html>
