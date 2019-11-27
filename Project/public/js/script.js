@@ -11,7 +11,32 @@ window.onload = function() {
     clientSocket.on('joinedClientId', function(data) {
       socketId = data;
       console.log(`my ID: ${socketId}`);
-    });
+
+      //___________________________________________________ TEXT
+      /** typing **/
+      $("#sub").click(function() {
+
+        let data = $("#message").val();
+
+        console.log(data);
+        let toSend = {
+          id: socketId,
+          data: data
+        };
+        clientSocket.emit('textChat', toSend);
+        $("#message").val('');
+      });
+
+      clientSocket.on("dataFromServerToChat", function(incomingData) {
+        console.log(incomingData.data);
+        let liitem = $("<li>");
+        liitem.text("ID: " + incomingData.id + " => " + incomingData.data);
+        $("#chatList").append(liitem);
+      });
+      //___________________________________________________
+
+
+    }); // maybe I should put everything inside this function
 
 
 
@@ -19,7 +44,7 @@ window.onload = function() {
     /* reveive message from server that mouse moved (mousemove) */
     clientSocket.on('movingFromServer', function(data) {
       context.clearRect(0, 0, canvas.width, canvas.height);
-      context.drawImage(img,Number(data.x),Number(data.y), 15,15);
+      context.drawImage(img, Number(data.x), Number(data.y), 15, 15);
       //console.log("moving");
 
     });
@@ -32,11 +57,30 @@ window.onload = function() {
     /* reveive message from server that mouse started moving (DOWN) */
     clientSocket.on('clickFromServer', function(data) {
       console.log("receivedClick");
-      context.drawImage(img,Number(data.x),Number(data.y), 15,15);
+      context.drawImage(img, Number(data.x), Number(data.y), 15, 15);
 
     });
 
 
+    //___________________________________________________ TEXT
+    /** typing **/
+    // $("#sub").click(function() {
+    //
+    //   let data = $("#message").val();
+    //   console.log(data);
+    //   let toSend = {
+    //     id: socketId,
+    //     data: data
+    //   };
+    //   clientSocket.emit('textChat', toSend);
+    // });
+    //
+    // clientSocket.on("dataFromServerToChat", function(incomingData) {
+    //   console.log(incomingData.data);
+    //   let liitem = $("<li>");
+    //   liitem.text("user id:: " + incomingData.id + "   ----" + " message:: " + incomingData.data);
+    //   $("#chatList").append(liitem);
+    // });
 
 
     //___________________________________________________ CANVAS
@@ -92,7 +136,7 @@ window.onload = function() {
       if (ev.type === "mousemove") {
         handleMouseMove(ev);
       }
-    }
+    } //eventOnCanvas(ev)
 
-  });
-};
+  }); // connect
+}; // onLoad

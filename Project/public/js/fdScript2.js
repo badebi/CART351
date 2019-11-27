@@ -74,13 +74,14 @@ async function onPlay() {
     const minProbability = 0.05;
     faceapi.draw.drawFaceExpressions(canvas, resizedResult, minProbability);
 
-    
+
 
     // TODO: Add extractFaces
 
     // TODO: get different landmarks
     // https://github.com/justadudewhohacks/face-api.js#retrieve-the-face-landmark-points-and-contours
 
+    // https://github.com/justadudewhohacks/face-api.js/issues/180
   };
 
   setTimeout(() => onPlay());
