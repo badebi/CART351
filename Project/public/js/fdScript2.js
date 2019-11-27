@@ -14,13 +14,16 @@ async function run() {
   await faceapi.loadTinyFaceDetectorModel('/models');
   await faceapi.loadFaceLandmarkModel('/models');
   await faceapi.loadFaceRecognitionModel('/models');
+  await faceapi.loadFaceExpressionModel('/models');
 
 
   console.log(faceapi.nets.faceLandmark68Net);
   console.log(faceapi.nets.faceRecognitionNet);
   console.log(faceapi.nets.tinyFaceDetector);
+  console.log(faceapi.nets.faceExpressionNet);
 
-  if (faceapi.nets.faceLandmark68Net.isLoaded && faceapi.nets.faceRecognitionNet.isLoaded && faceapi.nets.tinyFaceDetector.isLoaded) {
+
+  if (faceapi.nets.faceLandmark68Net.isLoaded && faceapi.nets.faceRecognitionNet.isLoaded && faceapi.nets.tinyFaceDetector.isLoaded && faceapi.nets.faceExpressionNet.isLoaded) {
     console.log("isLoaded");
     faceDetectionModelsAreLoaded = true;
   }
@@ -51,19 +54,33 @@ async function onPlay() {
   // ___________________________________________________
 
 
-  const result = await faceapi.detectSingleFace(videoEl, options).withFaceLandmarks();
+  const result = await faceapi.detectSingleFace(videoEl, options).withFaceLandmarks().withFaceExpressions();
 
   if (result) {
     const canvas = $('#overlay').get(0);
 
-    const displaySize = { width: videoEl.width, height: videoEl.height};
+    const displaySize = {
+      width: videoEl.width,
+      height: videoEl.height
+    };
     faceapi.matchDimensions(canvas, displaySize);
     const resizedResult = faceapi.resizeResults(result, displaySize);
 
     // if (withBoxes) {
-       faceapi.draw.drawDetections(canvas, resizedResult);
+    faceapi.draw.drawDetections(canvas, resizedResult);
     // }
     faceapi.draw.drawFaceLandmarks(canvas, resizedResult);
+
+    const minProbability = 0.05;
+    faceapi.draw.drawFaceExpressions(canvas, resizedResult, minProbability);
+
+    
+
+    // TODO: Add extractFaces
+
+    // TODO: get different landmarks
+    // https://github.com/justadudewhohacks/face-api.js#retrieve-the-face-landmark-points-and-contours
+
   };
 
   setTimeout(() => onPlay());

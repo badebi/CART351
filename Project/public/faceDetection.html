@@ -15,33 +15,38 @@
 
   <style media="screen">
     body {
-    margin: 0;
-    padding: 0;
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
-  canvas {
-    position: absolute;
+    canvas {
+      position: absolute;
 
-  }
-</style>
+    }
+
+    div {
+      position: absolute;
+      top: 10em;
+    }
+  </style>
 
 </head>
 
 <body>
   <!-- <video onloadedmetadata="onPlay(this)" id="inputVideo" autoplay muted playsinline></video>
   <canvas id="overlay" /> -->
-  <video id="video" onloadedmetadata="onPlay(this)" width= 1920 height= 1080 autoplay="autoplay" controls="true" muted></video>
-  <canvas id="overlay"/>
+  <video id="video" onloadedmetadata="onPlay(this)" width=1920 height=1080 autoplay="autoplay" controls="true" muted></video>
+  <canvas id="overlay"></canvas>
+  <div id="forChat">
+    <label>Write a joke: </label>
+    <input type="text" id="message" size="50">
+    <button id="sub">submit</button>
+  </div>
 </body>
-
-
-<script type="text/javascript">
-
-</script>
 
 </html>

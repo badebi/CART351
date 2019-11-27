@@ -4,6 +4,11 @@ const portNumber = 4200;
 const app = express();
 let httpServer = require('http').createServer(app);
 
+// ML
+const brain = require('brain.js');
+const net = new brain.recurrent.LSTM();
+// we want a jason file to store our training data (jokes)
+
 let clientIdIncrementing = 0;
 let clientIds = [];
 
