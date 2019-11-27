@@ -6,7 +6,8 @@ let httpServer = require('http').createServer(app);
 
 // ML --> API => https://github.com/BrainJS/brain.js
 let brain = require('brain.js');
-const net = new brain.recurrent.LSTM();
+
+const net = new brain.recurrent.LSTM({hiddenLayers: [3]});
 // we want a jason file to store our training data (jokes)
 const trainingData = [{
   input: "A skeleton walks into a bar and orders a beer and a mop",
@@ -47,7 +48,7 @@ app.get('/', function(req, res) {
 });
 
 // Go to face detection page
-app.get('/faceDetection', (req, res) => res.sendFile(__dirname + '/public/faceDetection.html'));
+app.get('/f', (req, res) => res.sendFile(__dirname + '/public/faceDetection.html'));
 
 app.get('/cam', (req, res) => res.sendFile(__dirname + '/public/captureAPI.html'));
 app.get('/webcam', (req, res) => res.sendFile(__dirname + '/public/webcamFaceLandmarkDetection.html'));
@@ -100,21 +101,40 @@ io.on('connection', function(socket) {
   // ___________________________________________________ TEXT
   // when receives chat::
   socket.on('textChat', function(data) {
-    socket.on('facialResponse', function (isHilarious) {
-      trainingData.push({inpu: data, output: isHilarious});
-      // need to save the training data into a jason file
-    });
+    socket.broadcast.emit('jokeFromServer', data);
+    // socket.on('facialResponse', function (isHilarious) {
+    //   trainingData.push({input: data.data, output: isHilarious});
+    //   // need to save the training data into a jason file
+    // });
+
+    // DEBUG
+
+    trainingData.push({input: data.data , output: 1});
+
+    // net.trainAsync(trainingData, options);
+
+    // TODO: OPTIMIZE LEARNING PROCCESS
+
+    // trainML(trainingData);
+    // async function trainML(data) {
+    //   await net.train(data,{
+    //     iterations: 1500,
+    //     errorThresh: 0.011/*,
+    //     log: (stats) => console.log(stats)*/
+    //   });
+    // }
+
 
 
     // net
     //   .trainAsync(trainingData, options)
     //   .then(res => {
-    //     const json = res.toJSON();
-    //     console.log(json);
+    //     // const json = res.toJSON();
+    //     console.log(res);
     //   })
     //   .catch(handleError);
 
-
+    console.log(trainingData);
     //send to everyone else
     console.log(data);
     //send to EVERYONE...

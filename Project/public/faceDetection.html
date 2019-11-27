@@ -5,6 +5,7 @@
   <meta charset="utf-8">
   <title></title>
   <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
   <script difer src="/face-api/face-api.js"></script>
   <!--  -->
 
@@ -31,7 +32,12 @@
 
     div {
       position: absolute;
-      top: 10em;
+      top: 1em;
+    }
+
+    #joke {
+      position: relative;
+        top: 1em;
     }
   </style>
 
@@ -40,12 +46,16 @@
 <body>
   <!-- <video onloadedmetadata="onPlay(this)" id="inputVideo" autoplay muted playsinline></video>
   <canvas id="overlay" /> -->
-  <video id="video" onloadedmetadata="onPlay(this)" width=1920 height=1080 autoplay="autoplay" controls="true" muted></video>
+  <video id="video" onloadedmetadata="onPlay(this)" width=720 height=540 autoplay="autoplay" controls="true" muted></video>
   <canvas id="overlay"></canvas>
   <div id="forChat">
     <label>Write a joke: </label>
     <textarea id="message"></textarea>
     <button id="sub">submit</button>
+    <div id="joke">
+      <ul id= "chatList">
+      </ul>
+    </div>
   </div>
 </body>
 

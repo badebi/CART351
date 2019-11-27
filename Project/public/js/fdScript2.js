@@ -1,10 +1,49 @@
 $(document).ready(function() {
-
+  let clientSocket = io.connect('http://localhost:4200');
   console.log("ready");
   let faceDetectionModelsAreLoaded = false;
 
   run();
+
+  clientSocket.on('connect', function(data) {
+    console.log("connected");
+    clientSocket.emit('join', 'msg:: client joined');
+    clientSocket.on('joinedClientId', function(data) {
+      socketId = data;
+      console.log(`my ID: ${socketId}`);
+      //___________________________________________________ TEXT
+      /** typing **/
+      $("#sub").click(function() {
+
+        let data = $("#message").val();
+
+        console.log(data);
+        let toSend = {
+          id: socketId,
+          data: data
+        };
+        clientSocket.emit('textChat', toSend);
+        $("#message").val('');
+      });
+
+      clientSocket.on("dataFromServerToChat", function(incomingData) {
+        console.log(incomingData.data);
+        let liitem = $("<li>");
+        liitem.text("ID: " + incomingData.id + " => " + incomingData.data);
+        $("#chatList").append(liitem);
+      });
+      //___________________________________________________
+
+
+      clientSocket.on('jokeFromServer', function(textData) {
+        console.log("fuck");
+      });
+
+      });
+    });
 });
+
+
 
 async function run() {
   // await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
@@ -50,7 +89,7 @@ async function onPlay() {
   // tiny_face_detector options
   let inputSize = 512
   let scoreThreshold = 0.5
-  const options = new faceapi.TinyFaceDetectorOptions();
+  const options = new faceapi.TinyFaceDetectorOptions(inputSize, scoreThreshold);
   // ___________________________________________________
 
 
@@ -63,8 +102,8 @@ async function onPlay() {
       width: videoEl.width,
       height: videoEl.height
     };
-    faceapi.matchDimensions(canvas, displaySize);
-    const resizedResult = faceapi.resizeResults(result, displaySize);
+    const dim = faceapi.matchDimensions(canvas, displaySize);
+    const resizedResult = faceapi.resizeResults(result, dim);
 
     // if (withBoxes) {
     faceapi.draw.drawDetections(canvas, resizedResult);
@@ -74,11 +113,15 @@ async function onPlay() {
     const minProbability = 0.05;
     faceapi.draw.drawFaceExpressions(canvas, resizedResult, minProbability);
 
-
+    // TODO: GET THE EXPRESSION
+    // if happy => emit 1 ... if not emit 0
+    // console.log(result.expressions.happy);
+    // console.log(result);
 
     // TODO: Add extractFaces
 
     // TODO: get different landmarks
+    // result.landmarks.position[]
     // https://github.com/justadudewhohacks/face-api.js#retrieve-the-face-landmark-points-and-contours
 
     // https://github.com/justadudewhohacks/face-api.js/issues/180
@@ -86,5 +129,5 @@ async function onPlay() {
 
   setTimeout(() => onPlay());
 
-  console.log("onplay");
+  //console.log("onplay");
 }

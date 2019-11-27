@@ -62,27 +62,7 @@ window.onload = function() {
     });
 
 
-    //___________________________________________________ TEXT
-    /** typing **/
-    // $("#sub").click(function() {
-    //
-    //   let data = $("#message").val();
-    //   console.log(data);
-    //   let toSend = {
-    //     id: socketId,
-    //     data: data
-    //   };
-    //   clientSocket.emit('textChat', toSend);
-    // });
-    //
-    // clientSocket.on("dataFromServerToChat", function(incomingData) {
-    //   console.log(incomingData.data);
-    //   let liitem = $("<li>");
-    //   liitem.text("user id:: " + incomingData.id + "   ----" + " message:: " + incomingData.data);
-    //   $("#chatList").append(liitem);
-    // });
-
-
+    
     //___________________________________________________ CANVAS
     let canvas = document.getElementById("canvas");
     context = canvas.getContext('2d');
