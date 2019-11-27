@@ -34,13 +34,24 @@ $(document).ready(function() {
       });
       //___________________________________________________
 
-
-      clientSocket.on('jokeFromServer', function(textData) {
-        console.log("fuck");
+      //___________________________________________________ Hearing the joke
+      clientSocket.on('jokeFromServer', function(data) {
+        console.log("got the joke from server");
+        // if there is a radical change in the amount of happiness in a sicific amout of time -> emit 1
+        if (true /*CONDITION*/ ) {
+          let packet = {
+            id: socketId,
+            data: data.data,
+            response: 0
+          };
+          //
+          clientSocket.emit('facialResponse', packet);
+        }
       });
+      //___________________________________________________
 
-      });
     });
+  });
 });
 
 
@@ -80,6 +91,7 @@ async function run() {
 async function onPlay() {
 
   const videoEl = $('#video').get(0);
+
 
   if (videoEl.paused || videoEl.ended || !faceDetectionModelsAreLoaded) {
     return setTimeout(() => onPlay());

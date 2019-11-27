@@ -7,7 +7,9 @@ let httpServer = require('http').createServer(app);
 // ML --> API => https://github.com/BrainJS/brain.js
 let brain = require('brain.js');
 
-const net = new brain.recurrent.LSTM({hiddenLayers: [3]});
+const net = new brain.recurrent.LSTM({
+  hiddenLayers: [3]
+});
 // we want a jason file to store our training data (jokes)
 const trainingData = [{
   input: "A skeleton walks into a bar and orders a beer and a mop",
@@ -102,14 +104,22 @@ io.on('connection', function(socket) {
   // when receives chat::
   socket.on('textChat', function(data) {
     socket.broadcast.emit('jokeFromServer', data);
-    // socket.on('facialResponse', function (isHilarious) {
-    //   trainingData.push({input: data.data, output: isHilarious});
-    //   // need to save the training data into a jason file
-    // });
+    socket.on('facialResponse', function(isHilarious) {
+      // trainingData.push({
+      //   input: isHilarious.data,
+      //   output: isHilarious.response
+      // });
+
+      console.log(`server got the response`);
+      // need to save the training data into a jason file
+    });
 
     // DEBUG
 
-    trainingData.push({input: data.data , output: 1});
+    trainingData.push({
+      input: data.data,
+      output: 1
+    });
 
     // net.trainAsync(trainingData, options);
 
