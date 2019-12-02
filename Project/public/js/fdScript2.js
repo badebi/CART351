@@ -47,12 +47,11 @@ $(document).ready(function() {
             response: 0
           };
           //
-          setTimeout(function(){
+          setTimeout(function() {
             clientSocket.emit('facialResponse', packet);
             console.log("send response");
 
-          }
-            ,10000);
+          }, 10000);
         }
         console.log("other stuff");
       });
@@ -117,7 +116,7 @@ $(document).ready(function() {
       }; // onPlay()
 
     }); // clientSocket.on('joinedClientId')
-  }); //   clientSocket.on('connect')
+  }); // clientSocket.on('connect')
 }); // $(document).ready()
 
 
