@@ -3,8 +3,6 @@ $(document).ready(function() {
   console.log("ready");
   let faceDetectionModelsAreLoaded = false;
 
-  run();
-
   clientSocket.on('connect', function(data) {
     console.log("connected");
     clientSocket.emit('join', 'msg:: client joined');
@@ -12,6 +10,8 @@ $(document).ready(function() {
 
       socketId = data;
       console.log(`my ID: ${socketId}`);
+
+      run();
 
       //___________________________________________________ TEXT ___________________________________________________
       /** typing **/
@@ -56,7 +56,6 @@ $(document).ready(function() {
         console.log("other stuff");
       });
       //___________________________________________________
-
 
 
       async function onPlay() {

@@ -13,6 +13,7 @@
     "express": "^4.17.1",
     "face-api.js": "^0.21.0",
     "node-static": "^0.7.11",
-    "socket.io": "^2.3.0"
+    "socket.io": "^2.3.0",
+    "sqlite3": "https://github.com/mapbox/node-sqlite3/tarball/master"
   }
 }
