@@ -58,6 +58,7 @@ $(document).ready(function() {
       //___________________________________________________
 
 
+
       async function onPlay() {
 
         const videoEl = $('#video').get(0);
@@ -109,45 +110,47 @@ $(document).ready(function() {
           // https://github.com/justadudewhohacks/face-api.js/issues/180
         };
 
-        setTimeout(() => onPlay());
+        // setTimeout(() => onPlay());
+        setTimeout(() => requestAnimationFrame(onPlay));
 
         //console.log("onplay");
       }; // onPlay()
 
+      async function run() {
+        // await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
+        // await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
+        // await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
+
+        await faceapi.loadTinyFaceDetectorModel('/models');
+        await faceapi.loadFaceLandmarkModel('/models');
+        await faceapi.loadFaceRecognitionModel('/models');
+        await faceapi.loadFaceExpressionModel('/models');
+
+
+        console.log(faceapi.nets.faceLandmark68Net);
+        console.log(faceapi.nets.faceRecognitionNet);
+        console.log(faceapi.nets.tinyFaceDetector);
+        console.log(faceapi.nets.faceExpressionNet);
+
+
+        if (faceapi.nets.faceLandmark68Net.isLoaded && faceapi.nets.faceRecognitionNet.isLoaded && faceapi.nets.tinyFaceDetector.isLoaded && faceapi.nets.faceExpressionNet.isLoaded) {
+          console.log("isLoaded");
+          faceDetectionModelsAreLoaded = true;
+        }
+
+        // try to access users webcam and stream the images
+        // to the video element
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {}
+        });
+        const videoEl = $('#video').get(0);
+        videoEl.srcObject = stream;
+
+        videoEl.addEventListener('loadedmetadata', (event) => {
+          onPlay();
+        });
+      }; // run()
+
     }); // clientSocket.on('joinedClientId')
   }); // clientSocket.on('connect')
 }); // $(document).ready()
-
-
-
-async function run() {
-  // await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
-  // await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
-  // await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
-
-  await faceapi.loadTinyFaceDetectorModel('/models');
-  await faceapi.loadFaceLandmarkModel('/models');
-  await faceapi.loadFaceRecognitionModel('/models');
-  await faceapi.loadFaceExpressionModel('/models');
-
-
-  console.log(faceapi.nets.faceLandmark68Net);
-  console.log(faceapi.nets.faceRecognitionNet);
-  console.log(faceapi.nets.tinyFaceDetector);
-  console.log(faceapi.nets.faceExpressionNet);
-
-
-  if (faceapi.nets.faceLandmark68Net.isLoaded && faceapi.nets.faceRecognitionNet.isLoaded && faceapi.nets.tinyFaceDetector.isLoaded && faceapi.nets.faceExpressionNet.isLoaded) {
-    console.log("isLoaded");
-    faceDetectionModelsAreLoaded = true;
-  }
-
-  // try to access users webcam and stream the images
-  // to the video element
-  const stream = await navigator.mediaDevices.getUserMedia({
-    video: {}
-  });
-  const videoEl = $('#video').get(0);
-  videoEl.srcObject = stream;
-
-}; // run()
