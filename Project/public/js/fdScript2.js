@@ -9,9 +9,11 @@ $(document).ready(function() {
     console.log("connected");
     clientSocket.emit('join', 'msg:: client joined');
     clientSocket.on('joinedClientId', function(data) {
+
       socketId = data;
       console.log(`my ID: ${socketId}`);
-      //___________________________________________________ TEXT
+
+      //___________________________________________________ TEXT ___________________________________________________
       /** typing **/
       $("#sub").click(function() {
 
@@ -34,7 +36,7 @@ $(document).ready(function() {
       });
       //___________________________________________________
 
-      //___________________________________________________ Hearing the joke
+      //___________________________________________________ Hearing the joke ___________________________________________________
       clientSocket.on('jokeFromServer', function(data) {
         console.log("got the joke from server");
         // if there is a radical change in the amount of happiness in a sicific amout of time -> emit 1
@@ -56,9 +58,67 @@ $(document).ready(function() {
       });
       //___________________________________________________
 
-    });
-  });
-});
+
+
+      async function onPlay() {
+
+        const videoEl = $('#video').get(0);
+
+
+        if (videoEl.paused || videoEl.ended || !faceDetectionModelsAreLoaded) {
+          return setTimeout(() => onPlay());
+        }
+
+        // ___________________________________________________
+        // tiny_face_detector options
+        let inputSize = 512
+        let scoreThreshold = 0.5
+        const options = new faceapi.TinyFaceDetectorOptions(inputSize, scoreThreshold);
+        // ___________________________________________________
+
+
+        const result = await faceapi.detectSingleFace(videoEl, options).withFaceLandmarks().withFaceExpressions();
+
+        if (result) {
+          const canvas = $('#overlay').get(0);
+
+          const displaySize = {
+            width: videoEl.width,
+            height: videoEl.height
+          };
+          const dim = faceapi.matchDimensions(canvas, displaySize);
+          const resizedResult = faceapi.resizeResults(result, dim);
+
+          // if (withBoxes) {
+          faceapi.draw.drawDetections(canvas, resizedResult);
+          // }
+          faceapi.draw.drawFaceLandmarks(canvas, resizedResult);
+
+          const minProbability = 0.05;
+          faceapi.draw.drawFaceExpressions(canvas, resizedResult, minProbability);
+
+          // TODO: GET THE EXPRESSION
+          // if happy => emit 1 ... if not emit 0
+          // console.log(result.expressions.happy);
+          // console.log(result);
+
+          // TODO: Add extractFaces
+
+          // TODO: get different landmarks
+          // result.landmarks.position[]
+          // https://github.com/justadudewhohacks/face-api.js#retrieve-the-face-landmark-points-and-contours
+
+          // https://github.com/justadudewhohacks/face-api.js/issues/180
+        };
+
+        setTimeout(() => onPlay());
+
+        //console.log("onplay");
+      }; // onPlay()
+
+    }); // clientSocket.on('joinedClientId')
+  }); //   clientSocket.on('connect')
+}); // $(document).ready()
 
 
 
@@ -92,60 +152,4 @@ async function run() {
   const videoEl = $('#video').get(0);
   videoEl.srcObject = stream;
 
-}
-
-async function onPlay() {
-
-  const videoEl = $('#video').get(0);
-
-
-  if (videoEl.paused || videoEl.ended || !faceDetectionModelsAreLoaded) {
-    return setTimeout(() => onPlay());
-  }
-
-  // ___________________________________________________
-  // tiny_face_detector options
-  let inputSize = 512
-  let scoreThreshold = 0.5
-  const options = new faceapi.TinyFaceDetectorOptions(inputSize, scoreThreshold);
-  // ___________________________________________________
-
-
-  const result = await faceapi.detectSingleFace(videoEl, options).withFaceLandmarks().withFaceExpressions();
-
-  if (result) {
-    const canvas = $('#overlay').get(0);
-
-    const displaySize = {
-      width: videoEl.width,
-      height: videoEl.height
-    };
-    const dim = faceapi.matchDimensions(canvas, displaySize);
-    const resizedResult = faceapi.resizeResults(result, dim);
-
-    // if (withBoxes) {
-    faceapi.draw.drawDetections(canvas, resizedResult);
-    // }
-    faceapi.draw.drawFaceLandmarks(canvas, resizedResult);
-
-    const minProbability = 0.05;
-    faceapi.draw.drawFaceExpressions(canvas, resizedResult, minProbability);
-
-    // TODO: GET THE EXPRESSION
-    // if happy => emit 1 ... if not emit 0
-    // console.log(result.expressions.happy);
-    // console.log(result);
-
-    // TODO: Add extractFaces
-
-    // TODO: get different landmarks
-    // result.landmarks.position[]
-    // https://github.com/justadudewhohacks/face-api.js#retrieve-the-face-landmark-points-and-contours
-
-    // https://github.com/justadudewhohacks/face-api.js/issues/180
-  };
-
-  setTimeout(() => onPlay());
-
-  //console.log("onplay");
-}
+}; // run()
