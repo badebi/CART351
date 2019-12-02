@@ -45,8 +45,14 @@ $(document).ready(function() {
             response: 0
           };
           //
-          clientSocket.emit('facialResponse', packet);
+          setTimeout(function(){
+            clientSocket.emit('facialResponse', packet);
+            console.log("send response");
+
+          }
+            ,10000);
         }
+        console.log("other stuff");
       });
       //___________________________________________________
 

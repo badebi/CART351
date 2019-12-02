@@ -7,6 +7,7 @@ let httpServer = require('http').createServer(app);
 // ML --> API => https://github.com/BrainJS/brain.js
 let brain = require('brain.js');
 
+
 const net = new brain.recurrent.LSTM({
   hiddenLayers: [3]
 });
@@ -125,28 +126,21 @@ io.on('connection', function(socket) {
 
     // TODO: OPTIMIZE LEARNING PROCCESS
 
-    // trainML(trainingData);
-    // async function trainML(data) {
-    //   await net.train(data,{
-    //     iterations: 1500,
-    //     errorThresh: 0.011/*,
-    //     log: (stats) => console.log(stats)*/
-    //   });
-    // }
+    trainML(trainingData);
+    function trainML(data) {
+       net.train(data,{
+        iterations: 1500,
+        errorThresh: 0.011,
+        log: (stats) => console.log(stats)
+      });
+    }
+    console.log("after");
 
 
 
-    // net
-    //   .trainAsync(trainingData, options)
-    //   .then(res => {
-    //     // const json = res.toJSON();
-    //     console.log(res);
-    //   })
-    //   .catch(handleError);
-
-    console.log(trainingData);
+  //  console.log(trainingData);
     //send to everyone else
-    console.log(data);
+  //  console.log(data);
     //send to EVERYONE...
     io.emit("dataFromServerToChat", data);
 
