@@ -1,12 +1,17 @@
-let express = require('express');
-let static = require('node-static');
+// this is the script that contains the functions for access/retreval from db
+const dataDBAccess = require('./dbScripts/DBAccess.js');
+
+const express = require('express');
+const static = require('node-static');
 const portNumber = 4200;
 const app = express();
 let httpServer = require('http').createServer(app);
 
+// open connection to db
+let db = dataDBAccess.establishConnection();
+
 // ML --> API => https://github.com/BrainJS/brain.js
 let brain = require('brain.js');
-
 
 const net = new brain.recurrent.LSTM({
   hiddenLayers: [3]
@@ -30,9 +35,6 @@ const options = {
   callbackPeriod: 10, // the number of iterations through the training data between callback calls --> number greater than 0
   timeout: Infinity, // the max number of milliseconds to train for --> number greater than 0
 };
-
-
-
 
 
 let clientIdIncrementing = 0;
@@ -68,7 +70,7 @@ app.use('/face-api', express.static(__dirname + '/node_modules/face-api.js/dist/
 
 
 // serever side
-// ___________________________________________________ HandShake
+// ___________________________________________________ HandShake ___________________________________________________
 io.on('connection', function(socket) {
   // console.log("a user connected");
   socket.on('join', function(data) {
@@ -101,26 +103,27 @@ io.on('connection', function(socket) {
 
   });
 
-  // ___________________________________________________ TEXT
+  // ___________________________________________________ TEXT ___________________________________________________
   // when receives chat::
   socket.on('textChat', function(data) {
     socket.broadcast.emit('jokeFromServer', data);
     socket.on('facialResponse', function(isHilarious) {
-      // trainingData.push({
-      //   input: isHilarious.data,
-      //   output: isHilarious.response
-      // });
+      trainingData.push({
+        input: isHilarious.data,
+        output: isHilarious.response
+      });
 
       console.log(`server got the response`);
+      console.log(trainingData);
       // need to save the training data into a jason file
     });
 
     // DEBUG
 
-    trainingData.push({
-      input: data.data,
-      output: 1
-    });
+    // trainingData.push({
+    //   input: data.data,
+    //   output: 1
+    // });
 
     // net.trainAsync(trainingData, options);
 
@@ -130,15 +133,15 @@ io.on('connection', function(socket) {
     function trainML(data) {
        net.train(data,{
         iterations: 1500,
-        errorThresh: 0.011,
-        log: (stats) => console.log(stats)
+        errorThresh: 0.011/*,
+        log: (stats) => console.log(stats)*/
       });
     }
     console.log("after");
 
 
 
-  //  console.log(trainingData);
+  // console.log(trainingData);
     //send to everyone else
   //  console.log(data);
     //send to EVERYONE...

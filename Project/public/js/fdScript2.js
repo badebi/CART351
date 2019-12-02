@@ -2,6 +2,7 @@ $(document).ready(function() {
   let clientSocket = io.connect('http://localhost:4200');
   console.log("ready");
   let faceDetectionModelsAreLoaded = false;
+  let lookForFacialResponse = false;
 
   clientSocket.on('connect', function(data) {
     console.log("connected");
@@ -38,8 +39,10 @@ $(document).ready(function() {
 
       //___________________________________________________ Hearing the joke ___________________________________________________
       clientSocket.on('jokeFromServer', function(data) {
+
         console.log("got the joke from server");
         // if there is a radical change in the amount of happiness in a sicific amout of time -> emit 1
+        lookForFacialResponse = true;
         if (true /*CONDITION*/ ) {
           let packet = {
             id: socketId,
@@ -53,7 +56,7 @@ $(document).ready(function() {
 
           }, 10000);
         }
-        console.log("other stuff");
+        // console.log("other stuff");
       });
       //___________________________________________________
 
@@ -96,6 +99,23 @@ $(document).ready(function() {
           const minProbability = 0.05;
           faceapi.draw.drawFaceExpressions(canvas, resizedResult, minProbability);
 
+          if (lookForFacialResponse) {
+            //console.log(result.expressions.happy);
+
+            //
+            setTimeout(function() {
+              let packet = {
+                id: socketId,
+                data: data.data,
+                response: result.expressions.happy.toFixed(2)
+              };
+              clientSocket.emit('facialResponse', packet);
+              console.log("send response");
+
+            }, 10000);
+            lookForFacialResponse = false;
+          }
+
           // TODO: GET THE EXPRESSION
           // if happy => emit 1 ... if not emit 0
           // console.log(result.expressions.happy);
@@ -127,10 +147,10 @@ $(document).ready(function() {
         await faceapi.loadFaceExpressionModel('/models');
 
 
-        console.log(faceapi.nets.faceLandmark68Net);
-        console.log(faceapi.nets.faceRecognitionNet);
-        console.log(faceapi.nets.tinyFaceDetector);
-        console.log(faceapi.nets.faceExpressionNet);
+        // console.log(faceapi.nets.faceLandmark68Net);
+        // console.log(faceapi.nets.faceRecognitionNet);
+        // console.log(faceapi.nets.tinyFaceDetector);
+        // console.log(faceapi.nets.faceExpressionNet);
 
 
         if (faceapi.nets.faceLandmark68Net.isLoaded && faceapi.nets.faceRecognitionNet.isLoaded && faceapi.nets.tinyFaceDetector.isLoaded && faceapi.nets.faceExpressionNet.isLoaded) {
