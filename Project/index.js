@@ -107,6 +107,7 @@ io.on('connection', function(socket) {
   // when receives chat::
   socket.on('textChat', function(data) {
     socket.broadcast.emit('jokeFromServer', data);
+
     socket.on('facialResponse', function(isHilarious) {
       trainingData.push({
         input: isHilarious.data,
@@ -114,8 +115,9 @@ io.on('connection', function(socket) {
       });
 
       console.log(`server got the response`);
-      console.log(trainingData);
-      // need to save the training data into a jason file
+      trainML(trainingData);
+      // console.log(trainingData);
+      // need to save the training data into a json file
     });
 
     // DEBUG
@@ -129,7 +131,7 @@ io.on('connection', function(socket) {
 
     // TODO: OPTIMIZE LEARNING PROCCESS
 
-    trainML(trainingData);
+
     function trainML(data) {
        net.train(data,{
         iterations: 1500,
@@ -137,11 +139,11 @@ io.on('connection', function(socket) {
         log: (stats) => console.log(stats)*/
       });
     }
-    console.log("after");
+    // console.log("after");
 
 
 
-  // console.log(trainingData);
+  console.log(trainingData);
     //send to everyone else
   //  console.log(data);
     //send to EVERYONE...

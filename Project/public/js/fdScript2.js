@@ -42,20 +42,21 @@ $(document).ready(function() {
 
         console.log("got the joke from server");
         // if there is a radical change in the amount of happiness in a sicific amout of time -> emit 1
-        lookForFacialResponse = true;
-        if (true /*CONDITION*/ ) {
+        //lookForFacialResponse = true;
+        // if (true /*CONDITION*/ ) {
           let packet = {
             id: socketId,
             data: data.data,
             response: 0
           };
-          //
+
+
           setTimeout(function() {
             clientSocket.emit('facialResponse', packet);
             console.log("send response");
 
-          }, 10000);
-        }
+          }, 5000);
+        // }
         // console.log("other stuff");
       });
       //___________________________________________________
@@ -73,8 +74,8 @@ $(document).ready(function() {
 
         // ___________________________________________________
         // tiny_face_detector options
-        let inputSize = 512
-        let scoreThreshold = 0.5
+        let inputSize = 224;
+        let scoreThreshold = 0.5;
         const options = new faceapi.TinyFaceDetectorOptions(inputSize, scoreThreshold);
         // ___________________________________________________
 
@@ -92,32 +93,47 @@ $(document).ready(function() {
           const resizedResult = faceapi.resizeResults(result, dim);
 
           // if (withBoxes) {
-          faceapi.draw.drawDetections(canvas, resizedResult);
+          // faceapi.draw.drawDetections(canvas, resizedResult);
           // }
-          faceapi.draw.drawFaceLandmarks(canvas, resizedResult);
+          // faceapi.draw.drawFaceLandmarks(canvas, resizedResult);
 
-          const minProbability = 0.05;
-          faceapi.draw.drawFaceExpressions(canvas, resizedResult, minProbability);
+          // const minProbability = 0.05;
+          // faceapi.draw.drawFaceExpressions(canvas, resizedResult, minProbability);
+
+
+          const regionsToExtract = [
+          new faceapi.Rect(0, 0, 100, 100)
+          ]
+          // actually extractFaces is meant to extract face regions from bounding boxes
+          // but you can also use it to extract any other region
+          // console.log(result.alignedRect.box);
+          const canvases = await faceapi.extractFaces(videoEl, [result.alignedRect.box]);
+          //
+          $('#face').empty();
+          $('#face').append(canvases);
+
+
 
           if (lookForFacialResponse) {
             //console.log(result.expressions.happy);
 
             //
-            setTimeout(function() {
-              let packet = {
-                id: socketId,
-                data: data.data,
-                response: result.expressions.happy.toFixed(2)
-              };
-              clientSocket.emit('facialResponse', packet);
-              console.log("send response");
-
-            }, 10000);
-            lookForFacialResponse = false;
+            // setTimeout(function() {
+            //   let packet = {
+            //     id: socketId,
+            //     data: data.data,
+            //     response: result.expressions.happy.toFixed(2)
+            //   };
+            //   clientSocket.emit('facialResponse', packet);
+            //   console.log("send response");
+            //
+            // }, 5000);
+            // lookForFacialResponse = false;
           }
 
           // TODO: GET THE EXPRESSION
           // if happy => emit 1 ... if not emit 0
+
           // console.log(result.expressions.happy);
           // console.log(result);
 
@@ -130,8 +146,8 @@ $(document).ready(function() {
           // https://github.com/justadudewhohacks/face-api.js/issues/180
         };
 
-        // setTimeout(() => onPlay());
-        setTimeout(() => requestAnimationFrame(onPlay));
+        setTimeout(() => onPlay());
+        // setTimeout(() => requestAnimationFrame(onPlay));
 
         //console.log("onplay");
       }; // onPlay()
