@@ -1,11 +1,14 @@
 // this is the script that contains the functions for access/retreval from db
 const dataDBAccess = require('./dbScripts/DBAccess.js');
 
+const fs = require('fs');
 const express = require('express');
 const static = require('node-static');
 const portNumber = 4200;
 const app = express();
 let httpServer = require('http').createServer(app);
+
+// const jsonFile = './db/data/data.json';
 
 // open connection to db
 let db = dataDBAccess.establishConnection();
@@ -150,10 +153,11 @@ io.on('connection', function(socket) {
       // ___________________________________________________
       dataDBAccess.putData(db, isHilarious).then(result => {
           //do something with the result
+          console.log("data successfully inserted");
           console.log("here:: " + result);
-          res.send(JSON.stringify({
-            message: 'insert successful'
-          }));
+          // res.send(JSON.stringify({
+          //   message: 'insert successful'
+          // }));
         })
         .catch(function(rej) {
           //here when you reject the promise
@@ -166,7 +170,7 @@ io.on('connection', function(socket) {
       console.log(trainingData);
       console.log(`after geting data from ${isHilarious.id}`);
       // need to save the training data into a json file
-      
+
     });
 
     // DEBUG
@@ -182,11 +186,37 @@ io.on('connection', function(socket) {
 
 
     function trainML(data) {
-       net.train(data,{
+      console.log("inside trainML()=>");
+      // do a test query and put result into console...
+      let theQuery = `SELECT * FROM trainingData${date.replace(/[/]/g, "")}`;
+      //use a promise - to only execute this when we are done  getting the data
+      dataDBAccess.fetchData(db, theQuery).then(resultSet => {
+          /*do something with the result
+            for(var i=0; i< resultSet.length; i++)
+            {
+             console.log("title:: "+resultSet[i].title);
+             console.log("artist:: "+resultSet[i].artist);
+           }*/
+          console.log(resultSet);
+          // res.send(JSON.stringify(resultSet));
+        })
+        .catch(function(rej) {
+          //here when you reject the promise
+          console.log(rej);
+        });
+
+      net.train(data, {
         iterations: 1500,
         errorThresh: 0.011/*,
         log: (stats) => console.log(stats)*/
       });
+      let json = net.toJSON();
+      json = JSON.stringify(json, null, 2);
+      fs.writeFile('./db/data/TrainedData.json', json, (err) => {
+        if (err) throw err;
+        console.log('Data written to file');
+      });
+      //console.log(json);
     }
     // console.log("after");
 
@@ -194,7 +224,7 @@ io.on('connection', function(socket) {
 
     // console.log(trainingData);
     //send to everyone else
-  //  console.log(data);
+    //  console.log(data);
     //send to EVERYONE...
     socket.broadcast.emit("dataFromServerToChat", data);
 
