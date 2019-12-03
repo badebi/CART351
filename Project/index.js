@@ -39,6 +39,36 @@ const options = {
 
 let clientIdIncrementing = 0;
 let clientIds = [];
+date = '';
+
+
+function hasOneDayPassed() {
+  let today = new Date().toLocaleDateString();
+
+  if (date === today) {
+    return false;
+  }
+
+  date = today;
+  return true;
+}
+
+// hasOneDayPassed();
+
+function runOncePerDay() {
+  if (!hasOneDayPassed()) {
+    console.log('SAME DAY => table already exists');
+    return false;
+  }
+  console.log(date);
+  console.log(date.replace(/[/]/g, ""));
+  let theQuery = `CREATE TABLE IF NOT EXISTS trainingData${date.replace(/[/]/g, "")} (pieceID INTEGER PRIMARY KEY NOT NULL, joke TEXT, funniness TEXT)`;
+  db.run(theQuery);
+  // db.close();
+  console.log("1st time for today");
+}
+
+
 
 // let theQuery = 'CREATE TABLE trainingData (pieceID INTEGER PRIMARY KEY NOT NULL, joke TEXT, funniness TEXT)';
 
@@ -74,6 +104,7 @@ app.use('/face-api', express.static(__dirname + '/node_modules/face-api.js/dist/
 // serever side
 // ___________________________________________________ HandShake ___________________________________________________
 io.on('connection', function(socket) {
+  runOncePerDay();
   // console.log("a user connected");
   socket.on('join', function(data) {
     clientIdIncrementing++;
@@ -117,17 +148,17 @@ io.on('connection', function(socket) {
         output: isHilarious.response
       });
       // ___________________________________________________
-      // dataDBAccess.putData(db, isHilarious).then(result => {
-      //     //do something with the result
-      //     console.log("here:: " + result);
-      //     res.send(JSON.stringify({
-      //       message: 'insert successful'
-      //     }));
-      //   })
-      //   .catch(function(rej) {
-      //     //here when you reject the promise
-      //     console.log(rej);
-      //   });
+      dataDBAccess.putData(db, isHilarious).then(result => {
+          //do something with the result
+          console.log("here:: " + result);
+          res.send(JSON.stringify({
+            message: 'insert successful'
+          }));
+        })
+        .catch(function(rej) {
+          //here when you reject the promise
+          console.log(rej);
+        });
       // ___________________________________________________
 
       // console.log(`server got the response: ${isHilarious.data}, ${isHilarious.response}`);

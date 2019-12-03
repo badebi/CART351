@@ -2,18 +2,6 @@ const sqlite3 = require('sqlite3').verbose();
 //just Connected
 exports.establishConnection = function() {
 
-
-    // DATE
-    // var today = new Date();
-    // var dd = String(today.getDate()).padStart(2, '0');
-    // var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-    // var yyyy = today.getFullYear();
-    //
-    // today = mm + '/' + dd + '/' + yyyy;
-    // console.log(`today is : ${today}`);
-
-
-
   let db = new sqlite3.Database("./db/trainingData.db", sqlite3.OPEN_READWRITE, (err) => {
     if (err) {
       return console.error(err.message);
@@ -28,7 +16,9 @@ exports.establishConnection = function() {
 // insert
 exports.putData = function(db, data) {
   return new Promise((resolve, reject) => {
-    let sqlInsert = `INSERT INTO trainingData (joke, funniness) VALUES ('${data.data}','${data.response}')`;
+    // DATE
+    let today = new Date().toLocaleDateString();
+    let sqlInsert = `INSERT INTO trainingData${today.replace(/[/]/g, "")} (joke, funniness) VALUES ('${data.data}','${data.response}')`;
     console.log("data::" + data)
     db.run(sqlInsert, (err) => {
       if (err) return reject(err);

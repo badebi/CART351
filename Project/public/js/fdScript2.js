@@ -45,7 +45,7 @@ $(document).ready(function() {
 
         console.log("got the joke from server");
         // if there is a radical change in the amount of happiness in a sicific amout of time -> emit 1
-        //lookForFacialResponse = true;
+        lookForFacialResponse = true;
         // if (true /*CONDITION*/ ) {
           const packet = {
             id: socketId,
@@ -57,6 +57,7 @@ $(document).ready(function() {
           // console.log("send response");
 
           setTimeout(function() {
+            lookForFacialResponse = false;
             clientSocket.emit('facialResponse', packet);
             console.log("send response");
 
@@ -123,7 +124,7 @@ async function onPlay() {
 
     if (lookForFacialResponse) {
       //console.log(result.expressions.happy);
-
+      console.log("Started looking");
       //
       // setTimeout(function() {
       //   let packet = {
@@ -151,7 +152,8 @@ async function onPlay() {
     // https://github.com/justadudewhohacks/face-api.js#retrieve-the-face-landmark-points-and-contours
 
     // https://github.com/justadudewhohacks/face-api.js/issues/180
-  };
+
+  }; // if(result)
 
   setTimeout(() => onPlay());
   // setTimeout(() => requestAnimationFrame(onPlay));
