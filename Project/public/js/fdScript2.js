@@ -1,4 +1,6 @@
 let lookForFacialResponse = false;
+let counter = 0;
+let sum = 0;
 
 $(document).ready(function() {
   let clientSocket = io.connect('http://localhost:4200');
@@ -45,24 +47,33 @@ $(document).ready(function() {
 
         console.log("got the joke from server");
         // if there is a radical change in the amount of happiness in a sicific amout of time -> emit 1
-        lookForFacialResponse = true;
-        // if (true /*CONDITION*/ ) {
-          const packet = {
-            id: socketId,
-            data: data.data,
-            response: 0
-          };
-          console.log(packet);
 
-          // console.log("send response");
+          setTimeout(getFacialResponse, 3000);
 
-          setTimeout(function() {
-            lookForFacialResponse = false;
-            clientSocket.emit('facialResponse', packet);
-            console.log("send response");
+          function getFacialResponse() {
 
-          }, 5000);
-        // }
+            lookForFacialResponse = true;
+
+            setTimeout(function() {
+              lookForFacialResponse = false;
+              console.log(`counter: ${counter}, Sum: ${sum}, Average: ${sum/counter}`);
+              let average = sum/counter;
+              sum = 0;
+              counter = 0;
+
+              const packet = {
+                id: socketId,
+                data: data.data,
+                response: average.toFixed(3)
+              };
+              console.log(packet);
+              clientSocket.emit('facialResponse', packet);
+              console.log("send response");
+
+            }, 4000);
+
+          } // getFacialResponse()
+
         // console.log("other stuff");
       });
       //___________________________________________________
@@ -125,7 +136,9 @@ async function onPlay() {
     if (lookForFacialResponse) {
       //console.log(result.expressions.happy);
       console.log("Started looking");
-      //
+      counter ++;
+      sum += result.expressions.happy;
+
       // setTimeout(function() {
       //   let packet = {
       //     id: socketId,

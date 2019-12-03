@@ -162,10 +162,11 @@ io.on('connection', function(socket) {
       // ___________________________________________________
 
       // console.log(`server got the response: ${isHilarious.data}, ${isHilarious.response}`);
-      // trainML(trainingData);
+      trainML(trainingData);
       console.log(trainingData);
       console.log(`after geting data from ${isHilarious.id}`);
       // need to save the training data into a json file
+      
     });
 
     // DEBUG
