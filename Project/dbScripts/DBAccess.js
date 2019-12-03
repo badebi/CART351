@@ -18,7 +18,7 @@ exports.establishConnection = function() {
     if (err) {
       return console.error(err.message);
     } else {
-      console.log("success");
+      console.log("db success");
     }
 
   })
@@ -28,7 +28,7 @@ exports.establishConnection = function() {
 // insert
 exports.putData = function(db, data) {
   return new Promise((resolve, reject) => {
-    let sqlInsert = `INSERT INTO artCollection (artist, title, creationDate, geoLoc, descript) VALUES ('${data.artist}','${data.title}','${data.creationDate}','${data.geoLoc}','${data.descript}')`;
+    let sqlInsert = `INSERT INTO trainingData (joke, funniness) VALUES ('${data.data}','${data.response}')`;
     console.log("data::" + data)
     db.run(sqlInsert, (err) => {
       if (err) return reject(err);

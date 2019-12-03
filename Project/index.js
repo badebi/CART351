@@ -40,6 +40,8 @@ const options = {
 let clientIdIncrementing = 0;
 let clientIds = [];
 
+// let theQuery = 'CREATE TABLE trainingData (pieceID INTEGER PRIMARY KEY NOT NULL, joke TEXT, funniness TEXT)';
+
 
 httpServer.listen(portNumber, function() {
   console.log(`server is running on port ${portNumber}.`);
@@ -106,49 +108,41 @@ io.on('connection', function(socket) {
   // ___________________________________________________ TEXT ___________________________________________________
   // when receives chat::
   socket.on('textChat', function(data) {
-    let inputJoke = '';
-    let inputReaction = 0;
-    // let gotResponse = false;
-
     socket.broadcast.emit('jokeFromServer', data);
 
     socket.on('facialResponse', function(isHilarious) {
-      let gotResponse = false;
-      // trainingData.push({
-      //   input: isHilarious.data,
-      //   output: isHilarious.response
-      // });
 
-      inputJoke = isHilarious.data,
-      inputReaction = isHilarious.response;
-
-      if (gotResponse) {
-        gotResponse = false;
-        return;
-      }
-      gotResponse = true;
-      updateTrainingData(isHilarious.id, gotResponse);
+      trainingData.push({
+        input: isHilarious.data,
+        output: isHilarious.response
+      });
+      // ___________________________________________________
+      // dataDBAccess.putData(db, isHilarious).then(result => {
+      //     //do something with the result
+      //     console.log("here:: " + result);
+      //     res.send(JSON.stringify({
+      //       message: 'insert successful'
+      //     }));
+      //   })
+      //   .catch(function(rej) {
+      //     //here when you reject the promise
+      //     console.log(rej);
+      //   });
+      // ___________________________________________________
 
       // console.log(`server got the response: ${isHilarious.data}, ${isHilarious.response}`);
       // trainML(trainingData);
-
-      //console.log(`data from: ${isHilarious.id} => `);
+      console.log(trainingData);
+      console.log(`after geting data from ${isHilarious.id}`);
       // need to save the training data into a json file
     });
 
     // DEBUG
-function updateTrainingData(id, gotResponse) {
-  if (gotResponse) {
-    trainingData.push({
-      input: inputJoke,
-      output: inputReaction
-    });
-    console.log(trainingData);
-    console.log(`got data from: ${id}`);
-  }
-}
 
-
+    // trainingData.push({
+    //   input: data.data,
+    //   output: 1
+    // });
 
     // net.trainAsync(trainingData, options);
 
