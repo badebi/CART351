@@ -106,17 +106,20 @@ io.on('connection', function(socket) {
   // ___________________________________________________ TEXT ___________________________________________________
   // when receives chat::
   socket.on('textChat', function(data) {
+    
     socket.broadcast.emit('jokeFromServer', data);
 
     socket.on('facialResponse', function(isHilarious) {
+
       trainingData.push({
         input: isHilarious.data,
         output: isHilarious.response
       });
 
-      console.log(`server got the response`);
-      trainML(trainingData);
-      // console.log(trainingData);
+      // console.log(`server got the response: ${isHilarious.data}, ${isHilarious.response}`);
+      // trainML(trainingData);
+      console.log(trainingData);
+      console.log(`after geting data from: ${isHilarious.id}`);
       // need to save the training data into a json file
     });
 
@@ -143,11 +146,11 @@ io.on('connection', function(socket) {
 
 
 
-  console.log(trainingData);
+    // console.log(trainingData);
     //send to everyone else
   //  console.log(data);
     //send to EVERYONE...
-    io.emit("dataFromServerToChat", data);
+    socket.broadcast.emit("dataFromServerToChat", data);
 
   });
 
