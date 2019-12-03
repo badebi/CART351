@@ -49,13 +49,14 @@ $(document).ready(function() {
             data: data.data,
             response: 0
           };
+          clientSocket.emit('facialResponse', packet);
+          console.log("send response");
 
-
-          setTimeout(function() {
-            clientSocket.emit('facialResponse', packet);
-            console.log("send response");
-
-          }, 5000);
+          // setTimeout(function() {
+          //   clientSocket.emit('facialResponse', packet);
+          //   console.log("send response");
+          //
+          // }, 5000);
         // }
         // console.log("other stuff");
       });
@@ -101,16 +102,15 @@ $(document).ready(function() {
           // faceapi.draw.drawFaceExpressions(canvas, resizedResult, minProbability);
 
 
-          const regionsToExtract = [
-          new faceapi.Rect(0, 0, 100, 100)
-          ]
           // actually extractFaces is meant to extract face regions from bounding boxes
           // but you can also use it to extract any other region
           // console.log(result.alignedRect.box);
-          const canvases = await faceapi.extractFaces(videoEl, [result.alignedRect.box]);
-          //
+          const face = await faceapi.extractFaces(videoEl, [result.alignedRect.box]);
+
+
+          // Display the face
           $('#face').empty();
-          $('#face').append(canvases);
+          $('#face').append(face);
 
 
 
