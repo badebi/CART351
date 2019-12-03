@@ -1,4 +1,91 @@
-#canvas {
-  background-color: white;
-  border: 1px solid red;
+@font-face {
+    font-family: magdacleanmono;
+	src: url(font/magdacleanmono-bold.ttf);
+}
+
+body {
+  font-family:"magdacleanmono";
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+canvas {
+  position: absolute;
+}
+
+div {
+  position: absolute;
+  top: 1em;
+}
+
+
+#joke {
+  position: relative;
+    top: 1em;
+}
+
+#face {
+      position: absolute;
+      bottom: 1em;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+}
+
+#message {
+  color: inherit;
+  font-family:"magdacleanmono";
+  font-size: 15px;
+  width: 42%;
+  padding-left: 15px;
+  background-color: inherit;
+  border: none;
+  border-bottom: 4px solid #000000;
+  border-radius: 5px;
+}
+
+#sub {
+  background-color: #000000;
+  font-family:"magdacleanmono";
+  font-size: 20px;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-decoration: none;
+  margin: 5px 4px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+#forChat{
+align-items: center;
+}
+
+@media(min-width: 900px){
+
+	/* #main p.hidden {
+	    color: #fff;
+	}
+	body {
+	    color: #000 !important;
+	    background-color: #fff;
+	}
+	#main hr {
+		border-top: 2px solid #000;
+	} */
+	body, html {
+		background-color: rgba(0, 0, 0, 0.56);
+		background: -moz-radial-gradient(center, ellipse cover, rgba(255,255,255,0.56) 0%, rgba(127,127,127,1) 100%);
+		background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(255,255,255,0.56)), color-stop(100%,rgba(127,127,127,1)));
+		background: -webkit-radial-gradient(center, ellipse cover, rgba(255,255,255,0.56) 0%,rgba(127,127,127,1) 100%);
+		background: -o-radial-gradient(center, ellipse cover, rgba(255,255,255,0.56) 0%,rgba(127,127,127,1) 100%);
+		background: -ms-radial-gradient(center, ellipse cover, rgba(255,255,255,0.56) 0%,rgba(127,127,127,1) 100%);
+		background: radial-gradient(center, ellipse cover, rgba(255,255,255,0.56) 0%,rgba(127,127,127,1) 100%);
+	}
+
 }
