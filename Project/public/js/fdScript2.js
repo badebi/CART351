@@ -105,6 +105,15 @@ async function onPlay() {
   if (result) {
     const canvas = $('#overlay').get(0);
 
+    const jawOutline = result.landmarks.getJawOutline();
+    const nose = result.landmarks.getNose();
+    const mouth = result.landmarks.getMouth();
+    const leftEye = result.landmarks.getLeftEye();
+    const rightEye = result.landmarks.getRightEye();
+    const leftEyeBbrow = result.landmarks.getLeftEyeBrow();
+    const rightEyeBrow = result.landmarks.getRightEyeBrow();
+
+
     const displaySize = {
       width: videoEl.width,
       height: videoEl.height
@@ -127,10 +136,75 @@ async function onPlay() {
     const face = await faceapi.extractFaces(videoEl, [result.alignedRect.box]);
 
 
+    // ___________________________________________________ extractRandomPart()
+    // not functional yet
+
+
+    let exPart = extractRandomPart();
+
+    function extractRandomPart() {
+
+      let part = {
+        x: 10000,
+        y: 10000,
+        width: 0,
+        height: 0
+      };
+
+      let MARGIN = 15;
+
+      // TODO: select randomly from the parts abouve
+      let partToExtract = mouth;
+      // get the box dimensions
+      // console.log(partToExtract[0]);
+      for (let i = 0; i < partToExtract.length; i++) {
+        if (partToExtract[i].x < part.x) {
+          part.x = partToExtract[i].x - MARGIN;
+          // console.log(`x :: ${part.x}`);
+        }
+        if (partToExtract[i].y < part.y) {
+          part.y = partToExtract[i].y - MARGIN;
+          // console.log(`y :: ${part.y}`);
+
+        }
+        if (partToExtract[i].x > part.width) {
+          part.width = partToExtract[i].x + MARGIN;
+          // console.log(`width :: ${part.width}`);
+
+        }
+
+        if (partToExtract[i].y > part.height) {
+          part.height = partToExtract[i].y + MARGIN;
+          // console.log(`height :: ${part.height}`);
+
+        }
+      }
+
+      part.width = part.width - part.x;
+      part.height = part.height - part.y;
+
+      const regionsToExtract = [
+        new faceapi.Rect(part.x, part.y, part.width, part.height)
+      ]
+
+      return regionsToExtract;
+    } // extractRandomPart()
+
+    // console.log(exPart);
+    // console.log(result.alignedRect.box);
+
+    //console.log(result.alignedRect.box);
+
+    // extrarct it
+     const extractedPart = await faceapi.extractFaces(videoEl, exPart);
+    // send it to serever
+
     // Display the face
     $('#face').empty();
     $('#face').append(face);
 
+    $('#otherParts').empty();
+    $('#otherParts').append(extractedPart);
 
 
     if (lookForFacialResponse) {
@@ -139,18 +213,9 @@ async function onPlay() {
       counter ++;
       sum += result.expressions.happy;
 
-      // setTimeout(function() {
-      //   let packet = {
-      //     id: socketId,
-      //     data: data.data,
-      //     response: result.expressions.happy.toFixed(2)
-      //   };
-      //   clientSocket.emit('facialResponse', packet);
-      //   console.log("send response");
-      //
-      // }, 5000);
-      // lookForFacialResponse = false;
     }
+
+
 
     // TODO: GET THE EXPRESSION
     // if happy => emit 1 ... if not emit 0
