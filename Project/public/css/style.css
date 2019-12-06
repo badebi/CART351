@@ -29,7 +29,7 @@ div {
     top: 1em;
 }
 
-#face {
+#face,#otherParts {
       position: absolute;
       bottom: 1em;
       display: flex;

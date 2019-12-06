@@ -3,10 +3,21 @@ const dataDBAccess = require('./dbScripts/DBAccess.js');
 
 const fs = require('fs');
 const express = require('express');
+
+const https = require('https');
+
+
+var key = fs.readFileSync(__dirname + '/certs/selfsigned.key');
+var cert = fs.readFileSync(__dirname + '/certs/selfsigned.crt');
+var optionsK = {
+  key: key,
+  cert: cert
+};
+
 const static = require('node-static');
 const portNumber = 4200;
 const app = express();
-let httpServer = require('http').createServer(app);
+let httpsServer = https.createServer(optionsK,app);
 
 // const jsonFile = './db/data/data.json';
 
@@ -76,7 +87,7 @@ function runOncePerDay() {
 // let theQuery = 'CREATE TABLE trainingData (pieceID INTEGER PRIMARY KEY NOT NULL, joke TEXT, funniness TEXT)';
 
 
-httpServer.listen(portNumber, function() {
+httpsServer.listen(portNumber, function() {
   console.log(`server is running on port ${portNumber}.`);
 });
 
@@ -96,7 +107,7 @@ app.get('/tiny_face_detector_model-weights_manifest.json', (req, res) => res.sen
 
 
 
-let io = require('socket.io')(httpServer);
+let io = require('socket.io')(httpsServer);
 
 // client side
 app.use(express.static(__dirname + '/node_modules'));

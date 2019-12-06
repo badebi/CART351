@@ -3,7 +3,8 @@ let counter = 0;
 let sum = 0;
 
 $(document).ready(function() {
-  let clientSocket = io.connect('http://localhost:4200');
+  // let clientSocket = io.connect('http://localhost:4200');
+  let clientSocket = io();
   console.log("ready");
   let faceDetectionModelsAreLoaded = false;
 
@@ -263,11 +264,27 @@ async function run() {
 
   // try to access users webcam and stream the images
   // to the video element
-  const stream = await navigator.mediaDevices.getUserMedia({
-    video: {}
-  });
+
+  if (!window.isSecureContext) {
+    console.log("connection is not secured");
+  }
+
+  // const stream = await navigator.mediaDevices.getUserMedia({
+  //   video: {}
+  // });
   const videoEl = $('#video').get(0);
-  videoEl.srcObject = stream;
+  // videoEl.srcObject = stream;
+  // console.log(navigator.webkitGetUserMedia);
+  navigator.mediaDevices.getUserMedia({video:{}})
+  .then(
+      (stream) => {
+        console.log("have video");
+        videoEl.srcObject = stream;
+
+      })
+    .catch(function(err) {
+      console.log("have no video");
+    })
 
   videoEl.addEventListener('loadedmetadata', (event) => {
     onPlay();
