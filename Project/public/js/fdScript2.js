@@ -133,7 +133,8 @@ $(document).ready(function() {
           // actually extractFaces is meant to extract face regions from bounding boxes
           // but you can also use it to extract any other region
           // console.log(result.alignedRect.box);
-          const face = await faceapi.extractFaces(videoEl, [result.alignedRect.box]);
+
+         // const face = await faceapi.extractFaces(videoEl, [result.alignedRect.box]);
 
 
           // ___________________________________________________ extractRandomPart()
@@ -171,42 +172,97 @@ $(document).ready(function() {
 
           clientSocket.emit('readyToSendParts', 'client asks for furthur instructions from server');
 
-          clientSocket.on('partRequest', (key) => {
+          clientSocket.on('partRequest', async (key) => {
             // console.log(key);
-            switch (key) {
-              case "jawOutline":
-                requestedPart = jawOutline;
-                break;
-              case "nose":
-                requestedPart = nose;
-                break;
-              case "mouth":
-                requestedPart = mouth;
-                break;
-              case "leftEye":
-                requestedPart = leftEye;
-                break;
-              case "rightEye":
-                requestedPart = rightEye;
-                break;
-              case "leftEyeBrow":
-                requestedPart = leftEyeBrow;
-                break;
-              case "rightEyeBrow":
-                requestedPart = rightEyeBrow;
-                break;
-              default:
-                console.log("no part requested");
+            let requestedPart;
+            // switch (key) {
+            //   case "nose":
+            //     requestedPart = nose;
+            //     break;
+            //   case "mouth":
+            //     // requestedPart = mouth;
+            //     getMouth();
+            //     break;
+            //   // case "leftEye":
+            //   //   requestedPart = leftEye;
+            //   //   break;
+            //   // case "rightEye":
+            //   //   requestedPart = rightEye;
+            //   //   break;
+            //   // case "leftEyeBrow":
+            //   //   requestedPart = leftEyeBrow;
+            //   //   break;
+            //   // case "rightEyeBrow":
+            //   //   requestedPart = rightEyeBrow;
+            //   //   break;
+            //   // case "jawOutline":
+            //   //   requestedPart = jawOutline;
+            //   //   break;
+            //   default:
+            //     console.log("no part requested");
+            // }
+            if (key === 'mouth') {
+              getMouth();
             }
 
+            if (key === 'nose') {
+              getNose();
+            }
+
+            if (key === 'leftEye') {
+              getLeftEye();
+            }
+
+            if (key === 'rightEye') {
+              getRightEye();
+            }
+
+            // let exPart = extractRandomPart(requestedPart);
+            // const extractedPart = await faceapi.extractFaces(videoEl, exPart);
+            //   $('#otherParts').empty();
+            //   $('#otherParts').append(extractedPart);
+            // console.log("part");
 
           });
 
-          let requestedPart = mouth;
 
-          let exPart = extractRandomPart(requestedPart);
+          async function getMouth() {
+            let exPart = extractRandomPart(mouth, 15);
+            const extractedPart = await faceapi.extractFaces(videoEl, exPart);
+            $('#mouth').empty();
+            $('#mouth').append(extractedPart);
+            // setTimeout(() => getMouth());
+          }
 
-          function extractRandomPart(partToExtract) {
+          async function getNose() {
+            let exPart = extractRandomPart(nose, 15);
+            const extractedPart = await faceapi.extractFaces(videoEl, exPart);
+            $('#nose').empty();
+            $('#nose').append(extractedPart);
+            // setTimeout(() => getMouth());
+          }
+
+          async function getLeftEye() {
+            let exPart = extractRandomPart(leftEye, 25);
+            const extractedPart = await faceapi.extractFaces(videoEl, exPart);
+            $('#leftEye').empty();
+            $('#leftEye').append(extractedPart);
+            // setTimeout(() => getMouth());
+          }
+
+          async function getRightEye() {
+            let exPart = extractRandomPart(rightEye, 25);
+            const extractedPart = await faceapi.extractFaces(videoEl, exPart);
+            $('#rightEye').empty();
+            $('#rightEye').append(extractedPart);
+            // setTimeout(() => getMouth());
+          }
+
+          // let requestedPart = mouth;
+          //
+          // let exPart = extractRandomPart(requestedPart);
+          //
+          function extractRandomPart(partToExtract, MARGIN) {
 
             let part = {
               x: 10000,
@@ -215,7 +271,7 @@ $(document).ready(function() {
               height: 0
             };
 
-            let MARGIN = 15;
+            // let MARGIN = 15;
 
             // TODO: select randomly from the parts abouve
 
@@ -255,22 +311,23 @@ $(document).ready(function() {
 
             return regionsToExtract;
           } // extractRandomPart()
+          //
+          // // console.log(exPart);
+          // // console.log(result.alignedRect.box);
+          //
+          // //console.log(result.alignedRect.box);
+          //
+          // // extrarct it
+          //  const extractedPart = await faceapi.extractFaces(videoEl, exPart);
 
-          // console.log(exPart);
-          // console.log(result.alignedRect.box);
-
-          //console.log(result.alignedRect.box);
-
-          // extrarct it
-           const extractedPart = await faceapi.extractFaces(videoEl, exPart);
           // send it to serever
 
           // Display the face
           $('#face').empty();
           $('#face').append(face);
 
-          $('#otherParts').empty();
-          $('#otherParts').append(extractedPart);
+          // $('#otherParts').empty();
+          // $('#otherParts').append(extractedPart);
 
 
 
@@ -353,6 +410,9 @@ $(document).ready(function() {
 
         videoEl.addEventListener('loadedmetadata', (event) => {
           onPlay();
+          // setInterval(function () {
+          //   clientSocket.emit('readyToSendParts', 'client asks for furthur instructions from server');
+          // }, 5000);
         });
       }; // run()
 

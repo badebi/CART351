@@ -117,10 +117,10 @@ let hybridFace = {
   mouth: '',
   nose: '',
   leftEye: '',
-  rightEye: '',
+  rightEye: ''/*,
   leftEyeBrow: '',
   rightEyeBrow: '',
-  jawOutline: ''
+  jawOutline: ''*/
 }
 
 
