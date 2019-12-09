@@ -18,7 +18,7 @@ exports.putData = function(db, data) {
   return new Promise((resolve, reject) => {
     // DATE
     let today = new Date().toLocaleDateString();
-    let sqlInsert = `INSERT INTO trainingData${today.replace(/[/]/g, "")} (joke, funniness) VALUES ('${data.data}','${data.response}')`;
+    let sqlInsert = `INSERT INTO trainingData${today.replace(/[/-]/g, "")} (joke, funniness) VALUES ('${data.data}','${data.response}')`;
     console.log("data::" + data)
     db.run(sqlInsert, (err) => {
       if (err) return reject(err);

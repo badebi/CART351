@@ -16,6 +16,6 @@
     "https": "^1.0.0",
     "node-static": "^0.7.11",
     "socket.io": "^2.3.0",
-    "sqlite3": "^4.1.0"
+    "sqlite3": "https://github.com/mapbox/node-sqlite3/tarball/master"
   }
 }

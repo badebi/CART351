@@ -75,8 +75,8 @@ function runOncePerDay() {
     return false;
   }
   console.log(date);
-  console.log(date.replace(/[/]/g, ""));
-  let theQuery = `CREATE TABLE IF NOT EXISTS trainingData${date.replace(/[/]/g, "")} (pieceID INTEGER PRIMARY KEY NOT NULL, joke TEXT, funniness TEXT)`;
+  console.log(date.replace(/[/-]/g, ""));
+  let theQuery = `CREATE TABLE IF NOT EXISTS trainingData${date.replace(/[/-]/g, "")} (pieceID INTEGER PRIMARY KEY NOT NULL, joke TEXT, funniness TEXT)`;
   db.run(theQuery);
   // db.close();
   console.log("1st time for today");
