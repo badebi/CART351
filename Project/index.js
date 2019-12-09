@@ -150,7 +150,7 @@ io.on('connection', function(socket) {
 
   });
 
-  // ___________________________________________________ TEXT ___________________________________________________
+  // ___________________________________________________ TEXT
   // when receives chat::
   socket.on('textChat', function(data) {
     socket.broadcast.emit('jokeFromServer', data);
@@ -239,6 +239,6 @@ io.on('connection', function(socket) {
     //send to EVERYONE...
     socket.broadcast.emit("dataFromServerToChat", data);
 
-  });
+  }); // socket.on('textChat')
 
-});
+}); // io.on('connection')
