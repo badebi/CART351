@@ -17,7 +17,7 @@ var optionsK = {
 const static = require('node-static');
 const portNumber = 4200;
 const app = express();
-let httpsServer = https.createServer(optionsK,app);
+let httpsServer = https.createServer(optionsK, app);
 
 // const jsonFile = './db/data/data.json';
 
@@ -113,6 +113,47 @@ let io = require('socket.io')(httpsServer);
 app.use(express.static(__dirname + '/node_modules'));
 app.use('/face-api', express.static(__dirname + '/node_modules/face-api.js/dist/'));
 
+let hybridFace = {
+  mouth: '',
+  nose: '',
+  leftEye: '',
+  rightEye: '',
+  leftEyeBrow: '',
+  rightEyeBrow: '',
+  jawOutline: ''
+}
+
+
+setInterval(function() {
+  let clientsList = [];
+  // list of connected clients
+  io.clients((error, clients) => {
+    if (error) throw error;
+    // console.log(`clients connected : ${clients}`);
+    clientsList = clients;
+    console.log(`clients List: ${clientsList}`);
+
+
+    for (let key in hybridFace) {
+      // skip loop if the property is from prototype
+      if (!hybridFace.hasOwnProperty(key)) continue;
+
+      hybridFace[key] = shuffle(clients)[0];
+    }
+
+    console.log(hybridFace);
+
+  });
+}, 5000);
+
+// Array Shuffler
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 
 // serever side
@@ -129,6 +170,33 @@ io.on('connection', function(socket) {
       id: clientIdIncrementing,
       socketId: socket.id
     });
+
+
+    // let clients = io.sockets.clients();
+    // console.log(clients);
+
+
+    socket.on('readyToSendParts', (data) => {
+      // console.log(data);
+      for (let key in hybridFace) {
+        // skip loop if the property is from prototype
+        if (!hybridFace.hasOwnProperty(key)) continue;
+
+        if (hybridFace[key]  === socket.id) {
+          // console.log(`send => ${key} <= to ${socket.id}`);
+          socket.emit("partRequest", key);
+        }
+
+      }
+
+    });
+
+
+
+    socket.on('disconnect', (reason) => {
+      console.log(`${socket.id} disconnected`);
+    });
+
 
     socket.on('receiveMove', function(data) {
 
@@ -218,8 +286,9 @@ io.on('connection', function(socket) {
 
       net.train(data, {
         iterations: 1500,
-        errorThresh: 0.011/*,
-        log: (stats) => console.log(stats)*/
+        errorThresh: 0.011
+        /*,
+                log: (stats) => console.log(stats)*/
       });
       let json = net.toJSON();
       json = JSON.stringify(json, null, 2);

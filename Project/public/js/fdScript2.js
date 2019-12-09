@@ -15,6 +15,11 @@ $(document).ready(function() {
     clientSocket.emit('join', 'msg:: client joined');
     clientSocket.on('joinedClientId', function(data) {
 
+      // setInterval(function () {
+      //   clientSocket.emit('readyToSendParts', 'client asks for furthur instructions from server')
+      //
+      // }, 2000);
+
       socketId = data;
       console.log(`my ID: ${socketId}`);
 
@@ -134,6 +139,8 @@ $(document).ready(function() {
           // ___________________________________________________ extractRandomPart()
           // not functional yet
 
+
+
           // switch (requestedPart) {
           //   case "jawOutline":
           //     requestedPart = jawOutline;
@@ -159,6 +166,41 @@ $(document).ready(function() {
           //   default:
           //     console.log("no part requested");
           // }
+
+          // READY TO EXTRACT PARTS AND SEND IT TO SERVER
+
+          clientSocket.emit('readyToSendParts', 'client asks for furthur instructions from server');
+
+          clientSocket.on('partRequest', (key) => {
+            // console.log(key);
+            switch (key) {
+              case "jawOutline":
+                requestedPart = jawOutline;
+                break;
+              case "nose":
+                requestedPart = nose;
+                break;
+              case "mouth":
+                requestedPart = mouth;
+                break;
+              case "leftEye":
+                requestedPart = leftEye;
+                break;
+              case "rightEye":
+                requestedPart = rightEye;
+                break;
+              case "leftEyeBrow":
+                requestedPart = leftEyeBrow;
+                break;
+              case "rightEyeBrow":
+                requestedPart = rightEyeBrow;
+                break;
+              default:
+                console.log("no part requested");
+            }
+
+
+          });
 
           let requestedPart = mouth;
 
@@ -229,6 +271,7 @@ $(document).ready(function() {
 
           $('#otherParts').empty();
           $('#otherParts').append(extractedPart);
+
 
 
           if (lookForFacialResponse) {
