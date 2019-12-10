@@ -39,7 +39,7 @@ div {
 
 #mouth {
       position: absolute;
-      top: 52%;
+      top: 56%;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -47,7 +47,7 @@ div {
 
 #nose {
       position: absolute;
-      top: 48%;
+      top: 46%;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -55,8 +55,8 @@ div {
 
 #leftEye {
       position: absolute;
-      top: 46%;
-      right: 55%;
+      top: 44%;
+      right: 51%;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -64,8 +64,8 @@ div {
 
 #rightEye {
       position: absolute;
-      top: 46%;
-      left: 55%;
+      top: 44%;
+      left: 51%;
       display: flex;
       justify-content: center;
       align-items: center;

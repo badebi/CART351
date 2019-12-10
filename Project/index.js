@@ -55,7 +55,7 @@ let clientIdIncrementing = 0;
 let clientIds = [];
 date = '';
 
-
+//
 function hasOneDayPassed() {
   let today = new Date().toLocaleDateString();
 
@@ -113,14 +113,17 @@ let io = require('socket.io')(httpsServer);
 app.use(express.static(__dirname + '/node_modules'));
 app.use('/face-api', express.static(__dirname + '/node_modules/face-api.js/dist/'));
 
+
+//
 let hybridFace = {
   mouth: '',
   nose: '',
   leftEye: '',
-  rightEye: ''/*,
-  leftEyeBrow: '',
-  rightEyeBrow: '',
-  jawOutline: ''*/
+  rightEye: ''
+  /*,
+    leftEyeBrow: '',
+    rightEyeBrow: '',
+    jawOutline: ''*/
 }
 
 
@@ -182,15 +185,30 @@ io.on('connection', function(socket) {
         // skip loop if the property is from prototype
         if (!hybridFace.hasOwnProperty(key)) continue;
 
-        if (hybridFace[key]  === socket.id) {
+        if (hybridFace[key] === socket.id) {
           // console.log(`send => ${key} <= to ${socket.id}`);
           socket.emit("partRequest", key);
         }
 
       }
-
     });
 
+    socket.on('gotMouth', (data) => {
+      // console.log(data);
+      socket.emit('displayMouth', data);
+    });
+    socket.on('gotNose', (data) => {
+      // console.log(data);
+      socket.emit('displayNose', data);
+    });
+    socket.on('gotLeftEye', (data) => {
+      // console.log(data);
+      socket.emit('displayLeftEye', data);
+    });
+    socket.on('gotRightEye', (data) => {
+      // console.log(data);
+      socket.emit('displayRightEye', data);
+    });
 
 
     socket.on('disconnect', (reason) => {
