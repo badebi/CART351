@@ -1,30 +1,36 @@
-// =============================================================================== requirements
+// ===============================================================================
+// requirements
+// ===============================================================================
 const dataDBAccess = require('./dbScripts/DBAccess.js');
 const fs = require('fs');
 const express = require('express');
 const https = require('https');
+const static = require('node-static');
+const brain = require('brain.js'); // ML --> API => https://github.com/BrainJS/brain.js
 
-// =============================================================================== certificate & key for a secure context
+// ===============================================================================
+// certificate & key for a secure context to create a https server
+// ===============================================================================
 const key = fs.readFileSync(__dirname + '/certs/selfsigned.key');
 const cert = fs.readFileSync(__dirname + '/certs/selfsigned.crt');
 const optionsK = {
   key: key,
   cert: cert
 };
-
-const static = require('node-static');
 const portNumber = 4200;
 const app = express();
 const httpsServer = https.createServer(optionsK, app);
+const io = require('socket.io')(httpsServer);
 
+// ===============================================================================
+// Open connection to DataBase
+// ===============================================================================
 // const jsonFile = './db/data/data.json';
+const db = dataDBAccess.establishConnection(); // sqLite => dataBase
 
-// open connection to db
-const db = dataDBAccess.establishConnection();
-
-// ML --> API => https://github.com/BrainJS/brain.js
-const brain = require('brain.js');
-
+// ===============================================================================
+// TrainML => Machine Learning stuff
+// ===============================================================================
 const net = new brain.recurrent.LSTM({
   hiddenLayers: [3]
 });
@@ -48,72 +54,13 @@ const options = {
   timeout: Infinity, // the max number of milliseconds to train for --> number greater than 0
 };
 
-
-let clientIdIncrementing = 0;
-let clientIds = [];
-date = '';
-
-//
-function hasOneDayPassed() {
-  let today = new Date().toLocaleDateString();
-
-  if (date === today) {
-    return false;
-  }
-
-  date = today;
-  return true;
-}
-
-// hasOneDayPassed();
-
-function runOncePerDay() {
-  if (!hasOneDayPassed()) {
-    console.log('SAME DAY => table already exists');
-    return false;
-  }
-  console.log(date);
-  console.log(date.replace(/[/-]/g, ""));
-  let theQuery = `CREATE TABLE IF NOT EXISTS trainingData${date.replace(/[/-]/g, "")} (pieceID INTEGER PRIMARY KEY NOT NULL, joke TEXT, funniness TEXT)`;
-  db.run(theQuery);
-  // db.close();
-  console.log("1st time for today");
-}
-
-
-
-// let theQuery = 'CREATE TABLE trainingData (pieceID INTEGER PRIMARY KEY NOT NULL, joke TEXT, funniness TEXT)';
-
-
-httpsServer.listen(portNumber, function() {
-  console.log(`server is running on port ${portNumber}.`);
-});
-
-app.use(express.static(__dirname + '/public'));
-
-app.get('/', function(req, res) {
-  res.sendFile(__dirname + '/public/index.html');
-  console.log(req.url);
-});
-
-// Go to face detection page
-app.get('/f', (req, res) => res.sendFile(__dirname + '/public/faceDetection.html'));
-
-app.get('/cam', (req, res) => res.sendFile(__dirname + '/public/captureAPI.html'));
-app.get('/webcam', (req, res) => res.sendFile(__dirname + '/public/webcamFaceLandmarkDetection.html'));
-app.get('/tiny_face_detector_model-weights_manifest.json', (req, res) => res.sendFile(__dirname + '/public/models/tiny_face_detector_model-weights_manifest.json'));
-
-
-
-let io = require('socket.io')(httpsServer);
-
-// client side
-app.use(express.static(__dirname + '/node_modules'));
-app.use('/face-api', express.static(__dirname + '/node_modules/face-api.js/dist/'));
-
-
-//
-let hybridFace = {
+// ===============================================================================
+// certificate & key for a secure context to create a https server
+// ===============================================================================
+let clientIdIncrementing = 0; // to keep track of # of clients // not necessary
+let clientIds = []; // to keep track of clientIDs // not necessary
+let date = '';
+let hybridFace = { // is used by server to decide which part comes from which client
   mouth: '',
   nose: '',
   leftEye: '',
@@ -123,7 +70,65 @@ let hybridFace = {
   jawOutline: ''*/
 }
 
+// ===============================================================================
+// ---------------------------- hasOneDayPassed() --------------------------------
+// called -> runOncePerDay()
+// It checks whether a day has passed or not
+// It returns "true" -> if one day has passed
+// It returns "false" -> if we are in the same day
+// ===============================================================================
+function hasOneDayPassed() {
+  let today = new Date().toLocaleDateString(); // keep the track of what day it is
 
+  if (date === today) {
+    return false;
+  }
+
+  date = today;
+  return true;
+} // hasOneDayPassed();
+
+// ===============================================================================
+// ---------------------------- runOncePerDay() --------------------------------
+// called -> io.on('connection')
+// SQL -> It creates a table in database once per day and names it based on date
+// Table format -> (pieceID INTEGER, joke TEXT, funniness TEXT)
+// ===============================================================================
+function runOncePerDay() {
+  if (!hasOneDayPassed()) { // if we are in the same day, the rable already exist
+    console.log('SAME DAY => table already exists');
+    return; // so return and do not attempt to creat the same table
+  }
+  console.log(date);
+  // console.log(date.replace(/[/-]/g, ""));
+  let theQuery = `CREATE TABLE IF NOT EXISTS trainingData${date.replace(/[/-]/g, "")} (pieceID INTEGER PRIMARY KEY NOT NULL, joke TEXT, funniness TEXT)`; // create a table
+  db.run(theQuery); // run database
+  // db.close();
+  console.log("1st time for today");
+} // runOncePerDay()
+
+// ===============================================================================
+// certificate & key for a secure context to create a https server
+// ===============================================================================
+httpsServer.listen(portNumber, () => console.log(`server is running on port ${portNumber}.`));
+
+// ===============================================================================
+// give client access to these these files
+// ===============================================================================
+app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/node_modules'));
+app.use('/face-api', express.static(__dirname + '/node_modules/face-api.js/dist/'));
+
+// ===============================================================================
+// rerouting
+// ===============================================================================
+app.get('/', (req, res) => res.sendFile(__dirname + '/public/faceDetection.html'));
+app.get('/tiny_face_detector_model-weights_manifest.json', (req, res) => res.sendFile(__dirname + '/public/models/tiny_face_detector_model-weights_manifest.json'));
+
+// ===============================================================================
+// ------------------------------- setInterval -----------------------------------
+// 
+// ===============================================================================
 setInterval(function() {
   let clientsList = [];
   // list of connected clients
@@ -133,16 +138,13 @@ setInterval(function() {
     clientsList = clients;
     // console.log(`clients List: ${clientsList}`);
 
-
     for (let key in hybridFace) {
       // skip loop if the property is from prototype
       if (!hybridFace.hasOwnProperty(key)) continue;
 
       hybridFace[key] = shuffle(clients)[0];
     }
-
     // console.log(hybridFace);
-
   });
 }, 1000);
 
@@ -154,7 +156,6 @@ function shuffle(a) {
   }
   return a;
 }
-
 
 // serever side
 // ___________________________________________________ HandShake ___________________________________________________
