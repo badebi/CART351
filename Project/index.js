@@ -116,11 +116,10 @@ app.use('/face-api', express.static(__dirname + '/node_modules/face-api.js/dist/
 
 //
 let hybridFace = {
-  mouth: '',
+  mouth: ''/*,
   nose: '',
   leftEye: '',
-  rightEye: ''
-  /*,
+  rightEye: '',
     leftEyeBrow: '',
     rightEyeBrow: '',
     jawOutline: ''*/
@@ -134,17 +133,17 @@ setInterval(function() {
     if (error) throw error;
     // console.log(`clients connected : ${clients}`);
     clientsList = clients;
-    console.log(`clients List: ${clientsList}`);
+    // console.log(`clients List: ${clientsList}`);
 
 
     for (let key in hybridFace) {
       // skip loop if the property is from prototype
       if (!hybridFace.hasOwnProperty(key)) continue;
 
-      hybridFace[key] = shuffle(clients)[0];
+      hybridFace[key] = clients[0];
     }
 
-    console.log(hybridFace);
+    // console.log(hybridFace);
 
   });
 }, 5000);
@@ -178,6 +177,10 @@ io.on('connection', function(socket) {
     // let clients = io.sockets.clients();
     // console.log(clients);
 
+    setInterval(function () {
+      socket.emit('areYouReady', 'Server Asks every second if the client is ready')
+      console.log("Are you ready");
+    }, 1000);
 
     socket.on('readyToSendParts', (data) => {
       // console.log(data);
@@ -189,25 +192,24 @@ io.on('connection', function(socket) {
           // console.log(`send => ${key} <= to ${socket.id}`);
           socket.emit("partRequest", key);
         }
-
       }
     });
 
     socket.on('gotMouth', (data) => {
       // console.log(data);
-      socket.emit('displayMouth', data);
+      socket.broadcast.emit('displayMouth', data);
     });
     socket.on('gotNose', (data) => {
       // console.log(data);
-      socket.emit('displayNose', data);
+      socket.broadcast.emit('displayNose', data);
     });
     socket.on('gotLeftEye', (data) => {
       // console.log(data);
-      socket.emit('displayLeftEye', data);
+      socket.broadcast.emit('displayLeftEye', data);
     });
     socket.on('gotRightEye', (data) => {
       // console.log(data);
-      socket.emit('displayRightEye', data);
+      socket.broadcast.emit('displayRightEye', data);
     });
 
 
