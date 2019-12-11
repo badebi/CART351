@@ -1,15 +1,13 @@
-// this is the script that contains the functions for access/retreval from db
+// =============================================================================== requirements
 const dataDBAccess = require('./dbScripts/DBAccess.js');
-
 const fs = require('fs');
 const express = require('express');
-
 const https = require('https');
 
-
-var key = fs.readFileSync(__dirname + '/certs/selfsigned.key');
-var cert = fs.readFileSync(__dirname + '/certs/selfsigned.crt');
-var optionsK = {
+// =============================================================================== certificate & key for a secure context
+const key = fs.readFileSync(__dirname + '/certs/selfsigned.key');
+const cert = fs.readFileSync(__dirname + '/certs/selfsigned.crt');
+const optionsK = {
   key: key,
   cert: cert
 };
@@ -17,15 +15,15 @@ var optionsK = {
 const static = require('node-static');
 const portNumber = 4200;
 const app = express();
-let httpsServer = https.createServer(optionsK, app);
+const httpsServer = https.createServer(optionsK, app);
 
 // const jsonFile = './db/data/data.json';
 
 // open connection to db
-let db = dataDBAccess.establishConnection();
+const db = dataDBAccess.establishConnection();
 
 // ML --> API => https://github.com/BrainJS/brain.js
-let brain = require('brain.js');
+const brain = require('brain.js');
 
 const net = new brain.recurrent.LSTM({
   hiddenLayers: [3]
@@ -116,13 +114,13 @@ app.use('/face-api', express.static(__dirname + '/node_modules/face-api.js/dist/
 
 //
 let hybridFace = {
-  mouth: ''/*,
+  mouth: '',
   nose: '',
   leftEye: '',
-  rightEye: '',
-    leftEyeBrow: '',
-    rightEyeBrow: '',
-    jawOutline: ''*/
+  rightEye: ''/*,
+  leftEyeBrow: '',
+  rightEyeBrow: '',
+  jawOutline: ''*/
 }
 
 
@@ -140,13 +138,13 @@ setInterval(function() {
       // skip loop if the property is from prototype
       if (!hybridFace.hasOwnProperty(key)) continue;
 
-      hybridFace[key] = clients[0];
+      hybridFace[key] = shuffle(clients)[0];
     }
 
     // console.log(hybridFace);
 
   });
-}, 5000);
+}, 1000);
 
 // Array Shuffler
 function shuffle(a) {
@@ -177,18 +175,20 @@ io.on('connection', function(socket) {
     // let clients = io.sockets.clients();
     // console.log(clients);
 
-    setInterval(function () {
+    setInterval(function() {
       socket.emit('areYouReady', 'Server Asks every second if the client is ready')
-      console.log("Are you ready");
-    }, 1000);
+      // console.log("Are you ready?");
+    }, 500);
 
     socket.on('readyToSendParts', (data) => {
+      // console.log("ready to send");
       // console.log(data);
       for (let key in hybridFace) {
         // skip loop if the property is from prototype
         if (!hybridFace.hasOwnProperty(key)) continue;
 
         if (hybridFace[key] === socket.id) {
+          // console.log("sending");
           // console.log(`send => ${key} <= to ${socket.id}`);
           socket.emit("partRequest", key);
         }
@@ -218,23 +218,23 @@ io.on('connection', function(socket) {
     });
 
 
-    socket.on('receiveMove', function(data) {
-
-      // This line sends the event (broadcasts it)
-      // to everyone except the originating client.
-      socket.broadcast.emit('movingFromServer', data);
-      //for testing do one
-      //  socket.emit('movingFromServer', data);
-    });
-
-    socket.on('receiveClick', function(data) {
-
-      // This line sends the event (broadcasts it)
-      // to everyone except the originating client.
-      socket.broadcast.emit('clickFromServer', data);
-      //for testing do one
-      //  socket.emit('movingFromServer', data);
-    });
+    // socket.on('receiveMove', function(data) {
+    //
+    //   // This line sends the event (broadcasts it)
+    //   // to everyone except the originating client.
+    //   socket.broadcast.emit('movingFromServer', data);
+    //   //for testing do one
+    //   //  socket.emit('movingFromServer', data);
+    // });
+    //
+    // socket.on('receiveClick', function(data) {
+    //
+    //   // This line sends the event (broadcasts it)
+    //   // to everyone except the originating client.
+    //   socket.broadcast.emit('clickFromServer', data);
+    //   //for testing do one
+    //   //  socket.emit('movingFromServer', data);
+    // });
 
   });
 

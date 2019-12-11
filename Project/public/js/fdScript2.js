@@ -2,6 +2,8 @@ let lookForFacialResponse = false;
 let counter = 0;
 let sum = 0;
 let readyToLook = false;
+let result = null;
+let videoEl;
 
 $(document).ready(function() {
   // let clientSocket = io.connect('http://localhost:4200');
@@ -87,19 +89,201 @@ $(document).ready(function() {
         } // getFacialResponse()
 
       }); // clientSocket.on('jokeFromServer')
-      //___________________________________________________
 
-      clientSocket.on('areYouReady', function (data) {
+      // ___________________________________________________ >>> areYouReady <<<
+      clientSocket.on('areYouReady', function(data) {
         if (readyToLook) {
           console.log("yes");
 
           clientSocket.emit('readyToSendParts', 'client asks for furthur instructions from server');
         }
-      })
+      });
+      // ___________________________________________________ <<<<>>>
+
+      // ___________________________________________________ >>> partRequest <<<
+      clientSocket.on('partRequest', async (key) => {
+
+        console.log("p");
+        // const requestedParts = [];
+
+        if (key === 'mouth') {
+          getMouth();
+          // requestedParts.push(getMouth());
+          isMyMouth = true;
+        }
+
+        if (key === 'nose') {
+          getNose();
+          // requestedParts.push(getNose());
+
+          isMyNose = true;
+        }
+
+        if (key === 'leftEye') {
+          getLeftEye();
+          // requestedParts.push(getLeftEye());
+          isMyLeftEye = true;
+        }
+
+        if (key === 'rightEye') {
+          getRightEye();
+          // requestedParts.push(getRightEye());
+          isMyRightEye = true;
+        }
+
+        // Trying to use promisall
+
+        // promise.all([])
+
+
+        // let exPart = extractRandomPart(requestedPart);
+        // const extractedPart = await faceapi.extractFaces(videoEl, exPart);
+        //   $('#otherParts').empty();
+        //   $('#otherParts').append(extractedPart);
+        // console.log("part");
+
+      });
+      // ___________________________________________________ <<<<>>>>
+
+      // ___________________________________________________ >>>> Get the parts <<<<
+      async function getMouth() {
+        if (result != null) {
+          const exPart = extractRandomPart(result.landmarks.getMouth(), 15);
+          const extractedPart = await faceapi.extractFaces(videoEl, exPart.region);
+          const displayableMouth = extractedPart[0].toDataURL("image/jpg", 0.1);
+          clientSocket.emit('gotMouth', displayableMouth);
+          document.getElementById('mouthImg').src = displayableMouth;
+        }
+      }
+
+      async function getNose() {
+        if (result != null) {
+          const exPart = extractRandomPart(result.landmarks.getNose(), 15);
+          const extractedPart = await faceapi.extractFaces(videoEl, exPart.region);
+          const displayableNose = extractedPart[0].toDataURL("image/jpeg", 0.1);
+          clientSocket.emit('gotNose', displayableNose);
+          document.getElementById('noseImg').src = displayableNose;
+        }
+        // $('#noseInnerDiv').empty();
+        // $('#noseInnerDiv').append(extractedPart);
+      }
+
+      async function getLeftEye() {
+        if (result != null) {
+          const exPart = extractRandomPart(result.landmarks.getLeftEye(), 15);
+          const extractedPart = await faceapi.extractFaces(videoEl, exPart.region);
+          const displayableLeftEye = extractedPart[0].toDataURL("image/jpeg", 0.1);
+          clientSocket.emit('gotLeftEye', displayableLeftEye);
+          document.getElementById('leftEyeImg').src = displayableLeftEye;
+        }
+
+
+
+
+        // $('#leftEyeInnerDiv').empty();
+        // $('#leftEyeInnerDiv').append(extractedPart);
+      }
+
+      async function getRightEye() {
+        if (result != null) {
+          const exPart = extractRandomPart(result.landmarks.getRightEye(), 15);
+          const extractedPart = await faceapi.extractFaces(videoEl, exPart.region);
+          const displayableRightEye = extractedPart[0].toDataURL("image/jpeg", 0.1);
+          clientSocket.emit('gotRightEye', displayableRightEye);
+          document.getElementById('rightEyeImg').src = displayableRightEye;
+        }
+
+
+
+        // $('#rightEyeInnerDiv').empty();
+        // $('#rightEyeInnerDiv').append(extractedPart);
+      }
+      // ___________________________________________________ <<<<>>>>
+
+      // ___________________________________________________ >>> display the parts <<<
+      clientSocket.on("displayMouth", function(data) {
+        $("#mouthImg").attr('src', data);
+        // console.log("in displayMouth");
+      });
+
+      clientSocket.on("displayNose", function(data) {
+        document.getElementById("noseImg").src = data;
+        // console.log("is disNose");
+        // console.log(data);
+      });
+
+      clientSocket.on("displayLeftEye", function(data) {
+        document.getElementById("leftEyeImg").src = data;
+        // console.log(data);
+      });
+
+      clientSocket.on("displayRightEye", function(data) {
+        document.getElementById("rightEyeImg").src = data;
+        // console.log(data);
+      });
+      // ___________________________________________________ <<<<>>>
+
+      function extractRandomPart(partToExtract, MARGIN) {
+
+        let part = {
+          x: 10000,
+          y: 10000,
+          width: 0,
+          height: 0
+        };
+
+        // let MARGIN = 15;
+
+        // TODO: select randomly from the parts abouve
+
+        // let partToExtract = _requestedPart;
+
+        // get the box dimensions
+        // console.log(partToExtract[0]);
+        for (let i = 0; i < partToExtract.length; i++) {
+          if (partToExtract[i].x < part.x) {
+            part.x = partToExtract[i].x - MARGIN;
+            // console.log(`x :: ${part.x}`);
+          }
+          if (partToExtract[i].y < part.y) {
+            part.y = partToExtract[i].y - MARGIN;
+            // console.log(`y :: ${part.y}`);
+
+          }
+          if (partToExtract[i].x > part.width) {
+            part.width = partToExtract[i].x + MARGIN;
+            // console.log(`width :: ${part.width}`);
+
+          }
+
+          if (partToExtract[i].y > part.height) {
+            part.height = partToExtract[i].y + MARGIN;
+            // console.log(`height :: ${part.height}`);
+
+          }
+        }
+
+        part.width = part.width - part.x;
+        part.height = part.height - part.y;
+
+        const regionsToExtract = {
+          region: [new faceapi.Rect(part.x, part.y, part.width, part.height)],
+          width: part.width,
+          height: part.height
+        }
+
+        // context.drawImage(videoEl, 0, 0, canvas.width / 2, canvas.height);
+
+        // maybe put the pixleLoad stuff here
+
+        return regionsToExtract;
+      } // extractRandomPart()
+
+
 
       async function onPlay() {
         // readyToLook = false;
-        const videoEl = $('#video').get(0);
+        videoEl = $('#video').get(0);
 
 
         if (videoEl.paused || videoEl.ended || !faceDetectionModelsAreLoaded) {
@@ -114,7 +298,7 @@ $(document).ready(function() {
         // ___________________________________________________
 
 
-        const result = await faceapi.detectSingleFace(videoEl, options).withFaceLandmarks().withFaceExpressions();
+        result = await faceapi.detectSingleFace(videoEl, options).withFaceLandmarks().withFaceExpressions();
 
 
         if (result) {
@@ -124,7 +308,7 @@ $(document).ready(function() {
 
           const jawOutline = result.landmarks.getJawOutline();
           const nose = result.landmarks.getNose();
-          const mouth = result.landmarks.getMouth();
+          //  const mouth = result.landmarks.getMouth();
           const leftEye = result.landmarks.getLeftEye();
           const rightEye = result.landmarks.getRightEye();
           const leftEyeBrow = result.landmarks.getLeftEyeBrow();
@@ -137,6 +321,7 @@ $(document).ready(function() {
           };
           const dim = faceapi.matchDimensions(canvas, displaySize);
           const resizedResult = faceapi.resizeResults(result, dim);
+
 
           // if (withBoxes) {
           // faceapi.draw.drawDetections(canvas, resizedResult);
@@ -151,7 +336,7 @@ $(document).ready(function() {
           // but you can also use it to extract any other region
           // console.log(result.alignedRect.box);
 
-           // const face = await faceapi.extractFaces(videoEl, [result.alignedRect.box]);
+          // const face = await faceapi.extractFaces(videoEl, [result.alignedRect.box]);
 
 
           // ___________________________________________________ extractRandomPart()
@@ -162,247 +347,84 @@ $(document).ready(function() {
 
           // clientSocket.emit('readyToSendParts', 'client asks for furthur instructions from server');
 
-          clientSocket.on('partRequest', async (key) => {
-            // console.log(key);
-            const requestedParts = [];
-            // switch (key) {
-            //   case "nose":
-            //     requestedPart = nose;
-            //     break;
-            //   case "mouth":
-            //     // requestedPart = mouth;
-            //     getMouth();
-            //     break;
-            //   // case "leftEye":
-            //   //   requestedPart = leftEye;
-            //   //   break;
-            //   // case "rightEye":
-            //   //   requestedPart = rightEye;
-            //   //   break;
-            //   // case "leftEyeBrow":
-            //   //   requestedPart = leftEyeBrow;
-            //   //   break;
-            //   // case "rightEyeBrow":
-            //   //   requestedPart = rightEyeBrow;
-            //   //   break;
-            //   // case "jawOutline":
-            //   //   requestedPart = jawOutline;
-            //   //   break;
-            //   default:
-            //     console.log("no part requested");
-            // }
-            if (key === 'mouth') {
-              getMouth();
-              // requestedParts.push(getMouth());
-              isMyMouth = true;
-            }
 
-            if (key === 'nose') {
-              getNose();
-              // requestedParts.push(getNose());
-
-              isMyNose = true;
-            }
-
-            if (key === 'leftEye') {
-              getLeftEye();
-              // requestedParts.push(getLeftEye());
-              isMyLeftEye = true;
-            }
-
-            if (key === 'rightEye') {
-              getRightEye();
-              // requestedParts.push(getRightEye());
-              isMyRightEye = true;
-            }
-
-            // Trying to use promisall
+          // clientSocket.on("displayMouth", function(data) {
+          //   // console.log("display mouth")
+          //   // console.log("display Mouth");
+          //   // console.log(data);
+          //
+          //   // $('#mouthCanvas').empty();
+          //   // let mouthCanvas = $('#mouthCanvas').get(0);
+          //   //
+          //   // let mouthContext = mouthCanvas.getContext('2d');
+          //   // //  console.log(mouthContext);
+          //   //
+          //   // //  mouthContext.putImageData(data)
+          //   // //  mouthContext.putImageData(data, 0, 0);
+          //   //
+          //   // // create imageData object
+          //   // let idata = mouthContext.createImageData(data.width, data.height);
+          //   //
+          //   // // set our buffer as source
+          //   // idata.data.set(Object.values(data.rawImgData));
+          //   //
+          //   // // update canvas with new data
+          //   // mouthContext.putImageData(idata, 0, 0);
+          //
+          //   //console.log(Object.values(data));
+          //   // $('#mouthCanvas').empty();
+          //   //  $('#mouth').append(mouthCanvas);
+          //   // console.log(data);
+          //   $("#mouthImg").attr('src', data);
+          //   // document.getElementById("mouthImg").src = data;
+          //   console.log("in displayMouth");
+          //
+          //   // console.log(data);
+          // });
 
 
+          // async function getMouth() {
+          //   let exPart = extractRandomPart(result.landmarks.getMouth(), 15);
+          //   const extractedPart = await faceapi.extractFaces(videoEl, exPart.region);
+          //
+          //   return extractedPart;
+          //
+          //   // let cx = document.getElementById("mouthTwo").getContext("2d");
+          //
+          //   // let displayableMouth = {
+          //   //   rawImgData: extractedPart[0].getContext("2d").getImageData(0, 0, extractedPart[0].width, extractedPart[0].height).data,
+          //   //   width: exPart.width,
+          //   //   height: exPart.height
+          //   // };
+          //
+          //
+          //   // ========> using .toDataURL()
+          //   // let displayableMouth = extractedPart[0].toDataURL("image/jpg", 0.1);
+          //   //----------
+          //   // clientSocket.emit('gotMouth', displayableMouth);
+          //   //----------
+          //
+          //
+          //   //  console.log(extractedPart[0].getContext("2d").getImageData(0,0,100,100).data);
+          //   //  let e  = document.getElementById("mouth");
+          //   //let t = e.document.getElementsByTagName("canvas")[0];
+          //   //console.log(e);
+          //   //let t = {"test":extractedPart};
+          //   //console.log(t.test);
+          //
+          //   // document.getElementById('mouthImg').src = displayableMouth;
+          //
+          //   // $('#mouthInnerDiv').empty();
+          //   // $('#mouthInnerDiv').append(extractedPart);
+          // }
 
-            // let exPart = extractRandomPart(requestedPart);
-            // const extractedPart = await faceapi.extractFaces(videoEl, exPart);
-            //   $('#otherParts').empty();
-            //   $('#otherParts').append(extractedPart);
-            // console.log("part");
-
-          });
-
-          clientSocket.on("displayMouth", function(data) {
-            // console.log("display mouth")
-            // console.log("display Mouth");
-            // console.log(data);
-
-            // $('#mouthCanvas').empty();
-            // let mouthCanvas = $('#mouthCanvas').get(0);
-            //
-            // let mouthContext = mouthCanvas.getContext('2d');
-            // //  console.log(mouthContext);
-            //
-            // //  mouthContext.putImageData(data)
-            // //  mouthContext.putImageData(data, 0, 0);
-            //
-            // // create imageData object
-            // let idata = mouthContext.createImageData(data.width, data.height);
-            //
-            // // set our buffer as source
-            // idata.data.set(Object.values(data.rawImgData));
-            //
-            // // update canvas with new data
-            // mouthContext.putImageData(idata, 0, 0);
-
-            //console.log(Object.values(data));
-            // $('#mouthCanvas').empty();
-            //  $('#mouth').append(mouthCanvas);
-            console.log(data);
-            document.getElementById("mouthImg").src = data;
-            console.log("in displayMouth");
-
-            // console.log(data);
-          });
-
-          clientSocket.on("displayNose", function(data) {
-            document.getElementById("noseImg").src = data;
-            console.log("is disNose");
-            // console.log(data);
-          });
-
-          clientSocket.on("displayLeftEye", function(data) {
-            document.getElementById("leftEyeImg").src = data;
-            // console.log(data);
-          });
-
-          clientSocket.on("displayRightEye", function(data) {
-            document.getElementById("rightEyeImg").src = data;
-            // console.log(data);
-          });
-
-          async function getMouth() {
-            let exPart = extractRandomPart(mouth, 15);
-            const extractedPart = await faceapi.extractFaces(videoEl, exPart.region);
-
-            // let cx = document.getElementById("mouthTwo").getContext("2d");
-
-            // let displayableMouth = {
-            //   rawImgData: extractedPart[0].getContext("2d").getImageData(0, 0, extractedPart[0].width, extractedPart[0].height).data,
-            //   width: exPart.width,
-            //   height: exPart.height
-            // };
-
-
-            // ========> using .toDataURL()
-            let displayableMouth = extractedPart[0].toDataURL("image/jpg", 0.1);
-
-            //  console.log(extractedPart[0].getContext("2d").getImageData(0,0,100,100).data);
-            //  let e  = document.getElementById("mouth");
-            //let t = e.document.getElementsByTagName("canvas")[0];
-            //console.log(e);
-            //let t = {"test":extractedPart};
-            //console.log(t.test);
-            clientSocket.emit('gotMouth', displayableMouth);
-
-            // document.getElementById('mouthImg').src = displayableMouth;
-
-            // $('#mouthInnerDiv').empty();
-            // $('#mouthInnerDiv').append(extractedPart);
-          }
-
-          async function getNose() {
-            const exPart = extractRandomPart(nose, 15);
-            const extractedPart = await faceapi.extractFaces(videoEl, exPart.region);
-            const displayableNose = extractedPart[0].toDataURL("image/jpeg", 0.1);
-            clientSocket.emit('gotNose', displayableNose);
-
-            document.getElementById('noseImg').src = displayableNose;
-
-            // $('#noseInnerDiv').empty();
-            // $('#noseInnerDiv').append(extractedPart);
-          }
-
-          async function getLeftEye() {
-            const exPart = extractRandomPart(leftEye, 15);
-            const extractedPart = await faceapi.extractFaces(videoEl, exPart.region);
-            const displayableLeftEye = extractedPart[0].toDataURL("image/jpeg", 0.1);
-            clientSocket.emit('gotLeftEye', displayableLeftEye);
-
-            document.getElementById('leftEyeImg').src = displayableLeftEye;
-
-            // $('#leftEyeInnerDiv').empty();
-            // $('#leftEyeInnerDiv').append(extractedPart);
-          }
-
-          async function getRightEye() {
-            const exPart = extractRandomPart(rightEye, 15);
-            const extractedPart = await faceapi.extractFaces(videoEl, exPart.region);
-            const displayableRightEye = extractedPart[0].toDataURL("image/jpeg", 0.1);
-            clientSocket.emit('gotRightEye', displayableRightEye);
-
-            document.getElementById('rightEyeImg').src = displayableRightEye;
-
-            // $('#rightEyeInnerDiv').empty();
-            // $('#rightEyeInnerDiv').append(extractedPart);
-          }
 
           // let requestedPart = mouth;
           //
           // let exPart = extractRandomPart(requestedPart);
           //
 
-          function extractRandomPart(partToExtract, MARGIN) {
 
-            let part = {
-              x: 10000,
-              y: 10000,
-              width: 0,
-              height: 0
-            };
-
-            // let MARGIN = 15;
-
-            // TODO: select randomly from the parts abouve
-
-            // let partToExtract = _requestedPart;
-
-            // get the box dimensions
-            // console.log(partToExtract[0]);
-            for (let i = 0; i < partToExtract.length; i++) {
-              if (partToExtract[i].x < part.x) {
-                part.x = partToExtract[i].x - MARGIN;
-                // console.log(`x :: ${part.x}`);
-              }
-              if (partToExtract[i].y < part.y) {
-                part.y = partToExtract[i].y - MARGIN;
-                // console.log(`y :: ${part.y}`);
-
-              }
-              if (partToExtract[i].x > part.width) {
-                part.width = partToExtract[i].x + MARGIN;
-                // console.log(`width :: ${part.width}`);
-
-              }
-
-              if (partToExtract[i].y > part.height) {
-                part.height = partToExtract[i].y + MARGIN;
-                // console.log(`height :: ${part.height}`);
-
-              }
-            }
-
-            part.width = part.width - part.x;
-            part.height = part.height - part.y;
-
-            const regionsToExtract = {
-              region: [new faceapi.Rect(part.x, part.y, part.width, part.height)],
-              width: part.width,
-              height: part.height
-            }
-
-            // context.drawImage(videoEl, 0, 0, canvas.width / 2, canvas.height);
-
-            // maybe put the pixleLoad stuff here
-
-            return regionsToExtract;
-          } // extractRandomPart()
 
           //
           // // console.log(exPart);
