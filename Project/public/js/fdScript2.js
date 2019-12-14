@@ -103,7 +103,7 @@ $(document).ready(function() {
       // ___________________________________________________ >>> partRequest <<<
       clientSocket.on('partRequest', async (key) => {
 
-        console.log("p");
+        // console.log("p");
         // const requestedParts = [];
 
         if (key === 'mouth') {

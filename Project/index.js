@@ -28,7 +28,7 @@ const io = require('socket.io')(httpsServer);
 // const jsonFile = './db/data/data.json';
 const db = dataDBAccess.establishConnection(); // sqLite => dataBase
 
-// ===============================================================================
+// =============================================================================== [ML]
 // TrainML => Machine Learning stuff
 // ===============================================================================
 const net = new brain.recurrent.LSTM({
@@ -54,7 +54,7 @@ const options = {
   timeout: Infinity, // the max number of milliseconds to train for --> number greater than 0
 };
 
-// ===============================================================================
+// =============================================================================== [UI]
 // certificate & key for a secure context to create a https server
 // ===============================================================================
 let clientIdIncrementing = 0; // to keep track of # of clients // not necessary
@@ -65,12 +65,12 @@ let hybridFace = { // is used by server to decide which part comes from which cl
   nose: '',
   leftEye: '',
   rightEye: ''/*,
-  leftEyeBrow: '',
-  rightEyeBrow: '',
-  jawOutline: ''*/
+    leftEyeBrow: '',
+    rightEyeBrow: '',
+    jawOutline: ''*/
 }
 
-// ===============================================================================
+// =============================================================================== [DB]
 // ---------------------------- hasOneDayPassed() --------------------------------
 // called -> runOncePerDay()
 // It checks whether a day has passed or not
@@ -82,13 +82,13 @@ function hasOneDayPassed() {
 
   if (date === today) {
     return false;
-  }
+  } // if()
 
   date = today;
   return true;
 } // hasOneDayPassed();
 
-// ===============================================================================
+// =============================================================================== [DB]
 // ---------------------------- runOncePerDay() --------------------------------
 // called -> io.on('connection')
 // SQL -> It creates a table in database once per day and names it based on date
@@ -98,7 +98,7 @@ function runOncePerDay() {
   if (!hasOneDayPassed()) { // if we are in the same day, the rable already exist
     console.log('SAME DAY => table already exists');
     return; // so return and do not attempt to creat the same table
-  }
+  } // if()
   console.log(date);
   // console.log(date.replace(/[/-]/g, ""));
   let theQuery = `CREATE TABLE IF NOT EXISTS trainingData${date.replace(/[/-]/g, "")} (pieceID INTEGER PRIMARY KEY NOT NULL, joke TEXT, funniness TEXT)`; // create a table
@@ -125,45 +125,54 @@ app.use('/face-api', express.static(__dirname + '/node_modules/face-api.js/dist/
 app.get('/', (req, res) => res.sendFile(__dirname + '/public/faceDetection.html'));
 app.get('/tiny_face_detector_model-weights_manifest.json', (req, res) => res.sendFile(__dirname + '/public/models/tiny_face_detector_model-weights_manifest.json'));
 
-// ===============================================================================
-// ------------------------------- setInterval -----------------------------------
-// 
+// =============================================================================== [UI]
+// ------------------------------ setInterval() ----------------------------------
+// Every 1000ms it assigns each part of the hybridFace to a random active client
 // ===============================================================================
 setInterval(function() {
-  let clientsList = [];
   // list of connected clients
   io.clients((error, clients) => {
     if (error) throw error;
-    // console.log(`clients connected : ${clients}`);
-    clientsList = clients;
-    // console.log(`clients List: ${clientsList}`);
-
+    // Loops through the hybridFace parts
     for (let key in hybridFace) {
       // skip loop if the property is from prototype
       if (!hybridFace.hasOwnProperty(key)) continue;
-
+      // shuffles through the list of active clients and assigns a client to each part
       hybridFace[key] = shuffle(clients)[0];
-    }
-    // console.log(hybridFace);
-  });
-}, 1000);
+    } // for()
+  }); // io.clients()
+}, 1000); // setInterval()
 
-// Array Shuffler
+// =============================================================================== [UI]
+// ---------------------------- shuffle([array]) ---------------------------------
+// called -> setInterval()
+// It suffles the given array and returns the shuffeled array
+// ===============================================================================
 function shuffle(a) {
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [a[i], a[j]] = [a[j], a[i]];
-  }
+  } // for()
   return a;
-}
+} // shuffle(a)
 
-// serever side
-// ___________________________________________________ HandShake ___________________________________________________
+// ===============================================================================
+// ++++++++++++++++++++++++++ io.on('connection') ++++++++++++++++++++++++++++++++
+// client/server handshake and fired upon a connection from client.
+// everything between server and clients happens here
+// ===============================================================================
 io.on('connection', function(socket) {
-  runOncePerDay();
   // console.log("a user connected");
+  runOncePerDay(); // SQL -> creat a new table everyday and run database
+
+  // -----------------------------------------------------------------------------
+  // ++++++++++++++++++++++++++ socket.on('join') ++++++++++++++++++++++++++++++++
+  // when a client gets 'connect' message from server, client emits 'join'
+  // then server emits 'joinedClientId', and when client receives that,
+  // everything on client side starts happening
+  // -----------------------------------------------------------------------------
   socket.on('join', function(data) {
-    clientIdIncrementing++;
+    clientIdIncrementing++; // just to give evry new client a number
     socket.emit('joinedClientId', clientIdIncrementing);
     console.log('a new user with id ' + clientIdIncrementing + " has entered");
     // keep track of IDs
@@ -172,75 +181,78 @@ io.on('connection', function(socket) {
       socketId: socket.id
     });
 
-
+    // NOTE: to keep track of clients who are connected:
+    // io.clients((err,clients) => {(let onlineClients = clients)}
+    // or:
     // let clients = io.sockets.clients();
-    // console.log(clients);
 
+    // =========================================================================== [UI]
+    // ---------------------------- setInterval() --------------------------------
+    // handles hybridFace
+    // Every 500ms it starts the client/server conversation to get the hybridFace
+    // parts from the assigns clients and send it to all other clents.
+    // - server: 'areYouReady'?
+    // - client: [if it has the result from face detection =>] 'readyToSendParts'
+    // - server: [checks if client should send a part to server, if yes, which part
+    //  =>] 'partRequest' [sends the name of the part it wants from this client]
+    // - client: [extracts the requested part(s) and sends a dataURL to server =>]
+    // 'gotMouth'/'gotNose'/'gotLeftEye'/'gotRightEye'
+    // - server: [gets the part(s) and sends the dataURL(s) to other clients to display =>]
+    // 'displayMouth'/'displayNose'/'displayLeftEye'/'displayRightEye'
+    // - client: [gets the dataURL of part(s) of other clients for hybridFace from server
+    // and displays it (them))]
+    // OVER
+    // ===========================================================================
     setInterval(function() {
-      socket.emit('areYouReady', 'Server Asks every second if the client is ready')
-      // console.log("Are you ready?");
-    }, 500);
+      socket.emit('areYouReady', 'Server Asks every half a second if the client is ready')
+    }, 500); // setInterval()
 
+    // --------------------------------------------------------------------------- [UI]
+    // +++++++++++++++++++ socket.on('readyToSendParts') +++++++++++++++++++++++++
+    // goes through the hybridFace parts and checks whether "this" client should send
+    // a part to server or not; if yes, which part =>
+    // 'partRequest' [sends the name of the part it wants from this client]
+    // ---------------------------------------------------------------------------
     socket.on('readyToSendParts', (data) => {
-      // console.log("ready to send");
-      // console.log(data);
       for (let key in hybridFace) {
         // skip loop if the property is from prototype
         if (!hybridFace.hasOwnProperty(key)) continue;
-
         if (hybridFace[key] === socket.id) {
-          // console.log("sending");
-          // console.log(`send => ${key} <= to ${socket.id}`);
           socket.emit("partRequest", key);
-        }
-      }
-    });
+        } // if()
+      } // for()
+    }); // socket.on('readyToSendParts')
 
-    socket.on('gotMouth', (data) => {
-      // console.log(data);
-      socket.broadcast.emit('displayMouth', data);
-    });
-    socket.on('gotNose', (data) => {
-      // console.log(data);
-      socket.broadcast.emit('displayNose', data);
-    });
-    socket.on('gotLeftEye', (data) => {
-      // console.log(data);
-      socket.broadcast.emit('displayLeftEye', data);
-    });
-    socket.on('gotRightEye', (data) => {
-      // console.log(data);
-      socket.broadcast.emit('displayRightEye', data);
-    });
+    // --------------------------------------------------------------------------- [UI]
+    // ++++++++++++++++++++++ socket.on('got[Part]') +++++++++++++++++++++++++++++
+    // gets the part(s) and sends the dataURL(s) to other clients to display
+    // ---------------------------------------------------------------------------
+    socket.on('gotMouth', (data) => {socket.broadcast.emit('displayMouth', data);});
+    socket.on('gotNose', (data) => {socket.broadcast.emit('displayNose', data);});
+    socket.on('gotLeftEye', (data) => {socket.broadcast.emit('displayLeftEye', data);});
+    socket.on('gotRightEye', (data) => {socket.broadcast.emit('displayRightEye', data);});
 
+    // ---------------------------------------------------------------------------
+    // ++++++++++++++++++++++ socket.on('disconnect') ++++++++++++++++++++++++++++
+    // fired upon disconnection.
+    // ---------------------------------------------------------------------------
+    socket.on('disconnect', (reason) => {console.log(`${socket.id} disconnected`);});
+  }); // socket.on('join')
 
-    socket.on('disconnect', (reason) => {
-      console.log(`${socket.id} disconnected`);
-    });
-
-
-    // socket.on('receiveMove', function(data) {
-    //
-    //   // This line sends the event (broadcasts it)
-    //   // to everyone except the originating client.
-    //   socket.broadcast.emit('movingFromServer', data);
-    //   //for testing do one
-    //   //  socket.emit('movingFromServer', data);
-    // });
-    //
-    // socket.on('receiveClick', function(data) {
-    //
-    //   // This line sends the event (broadcasts it)
-    //   // to everyone except the originating client.
-    //   socket.broadcast.emit('clickFromServer', data);
-    //   //for testing do one
-    //   //  socket.emit('movingFromServer', data);
-    // });
-
-  });
-
-  // ___________________________________________________ TEXT
-  // when receives chat::
+  // ----------------------------------------------------------------------------- [ML]
+  // ++++++++++++++++++++++++ socket.on('textChat') ++++++++++++++++++++++++++++++
+  // handles Machine Learning, organizing and saving input data and training data
+  // fired upon receiving data from the textbox on client side
+  // - client: [listens for click on submit button, when it is fired, gets data from
+  // the text box and sends it to server =>] 'textChat'
+  // - server: [send the received data to all other clients =>] 'jokeFromServer'
+  // - client: [waits for 3000ms for client to read the joke then starts observing
+  // user's facial response to the joke for 4000ms. it calculates the average
+  // happiness of the user (with the help of face-API) and sends this number with
+  // the associated joke back to server =>] 'facialResponse'
+  // - server: [save the data into the database and stores it into trainingData
+  // variable, with which, then, trains itself]
+  // -----------------------------------------------------------------------------
   socket.on('textChat', function(data) {
     socket.broadcast.emit('jokeFromServer', data);
 
@@ -255,9 +267,6 @@ io.on('connection', function(socket) {
           //do something with the result
           console.log("data successfully inserted");
           console.log("here:: " + result);
-          // res.send(JSON.stringify({
-          //   message: 'insert successful'
-          // }));
         })
         .catch(function(rej) {
           //here when you reject the promise
@@ -267,68 +276,40 @@ io.on('connection', function(socket) {
 
       // console.log(`server got the response: ${isHilarious.data}, ${isHilarious.response}`);
       trainML(trainingData);
+      console.log(`after geting data from ${isHilarious.id} =>`);
       console.log(trainingData);
-      console.log(`after geting data from ${isHilarious.id}`);
-      // need to save the training data into a json file
-
-    });
-
-    // DEBUG
-
-    // trainingData.push({
-    //   input: data.data,
-    //   output: 1
-    // });
-
-    // net.trainAsync(trainingData, options);
+    }); // socket.on('facialResponse')
 
     // TODO: OPTIMIZE LEARNING PROCCESS
-
 
     function trainML(data) {
       console.log("inside trainML()=>");
       // do a test query and put result into console...
-      let theQuery = `SELECT * FROM trainingData${date.replace(/[/]/g, "")}`;
+      let theQuery = `SELECT * FROM trainingData${date.replace(/[/-]/g, "")}`;
       //use a promise - to only execute this when we are done  getting the data
       dataDBAccess.fetchData(db, theQuery).then(resultSet => {
-          /*do something with the result
-            for(var i=0; i< resultSet.length; i++)
-            {
-             console.log("title:: "+resultSet[i].title);
-             console.log("artist:: "+resultSet[i].artist);
-           }*/
           console.log(resultSet);
           // res.send(JSON.stringify(resultSet));
         })
         .catch(function(rej) {
           //here when you reject the promise
           console.log(rej);
-        });
+        }); // catch()
 
       net.train(data, {
         iterations: 1500,
-        errorThresh: 0.011
-        /*,
-                log: (stats) => console.log(stats)*/
+        errorThresh: 0.011/*,
+        log: (stats) => console.log(stats)*/
       });
+      // store training data as a JSON file and save it
       let json = net.toJSON();
       json = JSON.stringify(json, null, 2);
       fs.writeFile('./db/data/TrainedData.json', json, (err) => {
         if (err) throw err;
         console.log('Data written to file');
       });
-      //console.log(json);
-    }
-    // console.log("after");
+    } // trainML()
 
-
-
-    // console.log(trainingData);
-    //send to everyone else
-    //  console.log(data);
-    //send to EVERYONE...
     socket.broadcast.emit("dataFromServerToChat", data);
-
   }); // socket.on('textChat')
-
 }); // io.on('connection')
