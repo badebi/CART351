@@ -22,8 +22,11 @@ const app = express();
 const httpsServer = https.createServer(optionsK, app);
 const io = require('socket.io')(httpsServer);
 
-// ===============================================================================
-// Open connection to DataBase
+// =============================================================================== [DB]
+// ------------------------- .establishConnection) -------------------------------
+// a function from DBAccess script
+// creats new sqlite3 database Object
+// opens connection to DataBase
 // ===============================================================================
 // const jsonFile = './db/data/data.json';
 const db = dataDBAccess.establishConnection(); // sqLite => dataBase
@@ -239,7 +242,7 @@ io.on('connection', function(socket) {
     socket.on('disconnect', (reason) => {console.log(`${socket.id} disconnected`);});
   }); // socket.on('join')
 
-  // ----------------------------------------------------------------------------- [ML]
+  // ----------------------------------------------------------------------------- [ML][DB]
   // ++++++++++++++++++++++++ socket.on('textChat') ++++++++++++++++++++++++++++++
   // handles Machine Learning, organizing and saving input data and training data
   // fired upon receiving data from the textbox on client side
@@ -254,39 +257,58 @@ io.on('connection', function(socket) {
   // variable, with which, then, trains itself]
   // -----------------------------------------------------------------------------
   socket.on('textChat', function(data) {
+    // sends the joke to all other clients
     socket.broadcast.emit('jokeFromServer', data);
 
-    socket.on('facialResponse', function(isHilarious) {
-
+    // --------------------------------------------------------------------------- [ML][DB]
+    // ++++++++++++++++++++ socket.on('facialResponse') ++++++++++++++++++++++++++
+    // fired when client finishes calculating the facial response of user to the joke.
+    // adds the data received from client (reactionData) to the trainingData
+    // puts the reactionData into today's table in database
+    // trains itself with the new data
+    // ---------------------------------------------------------------------------
+    socket.on('facialResponse', function(reactionData) {
+      // console.log(`server got the response: ${reactionData.data}, ${reactionData.response}`);
+      // add new data to trainingData
       trainingData.push({
-        input: isHilarious.data,
-        output: isHilarious.response
+        input: reactionData.data,
+        output: reactionData.response
       });
-      // ___________________________________________________
-      dataDBAccess.putData(db, isHilarious).then(result => {
-          //do something with the result
+
+      // ========================================================================= [DB]
+      // ------------------------ .putData(db, data) -----------------------------
+      // a function from DBAccess script
+      // gets a sqlite3 object (db) and data, and puts the data into db
+      // returns a promise
+      // =========================================================================
+      dataDBAccess.putData(db, reactionData).then(result => {
           console.log("data successfully inserted");
-          console.log("here:: " + result);
+          console.log("db result:: " + result);
         })
         .catch(function(rej) {
           //here when you reject the promise
           console.log(rej);
         });
-      // ___________________________________________________
 
-      // console.log(`server got the response: ${isHilarious.data}, ${isHilarious.response}`);
+      // start training
       trainML(trainingData);
-      console.log(`after geting data from ${isHilarious.id} =>`);
+      // check what we have got from which client
+      console.log(`after geting data from ${reactionData.id} =>`);
       console.log(trainingData);
     }); // socket.on('facialResponse')
 
-    // TODO: OPTIMIZE LEARNING PROCCESS
+    // =========================================================================== [ML]
+    // ---------------------------- trainML(data) --------------------------------
+    // UNDER DEVELOPMENT
+    // for now, it gets the data from trainingData and trains itself
+    // but when we gathered enough traingig data, it will fetchData from data based to train
 
+    // ===========================================================================
     function trainML(data) {
-      console.log("inside trainML()=>");
-      // do a test query and put result into console...
+      // console.log("inside trainML()=>");
+      // access data from database
       let theQuery = `SELECT * FROM trainingData${date.replace(/[/-]/g, "")}`;
-      //use a promise - to only execute this when we are done  getting the data
+      //use a promise - to only execute this when we are done getting the data
       dataDBAccess.fetchData(db, theQuery).then(resultSet => {
           console.log(resultSet);
           // res.send(JSON.stringify(resultSet));
@@ -296,6 +318,12 @@ io.on('connection', function(socket) {
           console.log(rej);
         }); // catch()
 
+      // ========================================================================= [ML]
+      // ----------------------- .train(trainingData) ----------------------------
+      // from brainJS Library
+      // trains the machine
+      // The output of train() is a hash of information about how the training went
+      // =========================================================================
       net.train(data, {
         iterations: 1500,
         errorThresh: 0.011/*,
@@ -310,6 +338,6 @@ io.on('connection', function(socket) {
       });
     } // trainML()
 
-    socket.broadcast.emit("dataFromServerToChat", data);
+    // TODO: OPTIMIZE LEARNING PROCCESS
   }); // socket.on('textChat')
 }); // io.on('connection')

@@ -49,15 +49,18 @@ $(document).ready(function() {
       });
 
       clientSocket.on("dataFromServerToChat", function(incomingData) {
-        console.log(incomingData.data);
-        let liitem = $("<li>");
-        liitem.text("ID: " + incomingData.id + " => " + incomingData.data);
-        $("#chatList").append(liitem);
+
       });
       //___________________________________________________
 
       //___________________________________________________ Hearing the joke ___________________________________________________
       clientSocket.on('jokeFromServer', function(data) {
+
+        // show
+        console.log(data.data);
+        let liitem = $("<li>");
+        liitem.text("ID: " + data.id + " => " + data.data);
+        $("#chatList").append(liitem);
 
         console.log("got the joke from server");
         // if there is a radical change in the amount of happiness in a sicific amout of time -> emit 1
