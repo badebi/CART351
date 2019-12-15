@@ -68,9 +68,9 @@ let hybridFace = { // is used by server to decide which part comes from which cl
   nose: '',
   leftEye: '',
   rightEye: ''/*,
-    leftEyeBrow: '',
-    rightEyeBrow: '',
-    jawOutline: ''*/
+  leftEyeBrow: '',
+  rightEyeBrow: '',
+  jawOutline: ''*/
 }
 
 // =============================================================================== [DB]

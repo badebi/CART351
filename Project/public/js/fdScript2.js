@@ -138,8 +138,8 @@ $(document).ready(function() {
         if (isFaceDetected) {
           console.log("yes");
           clientSocket.emit('readyToSendParts', 'client asks for furthur instructions from server');
-        }
-      });
+        } // if()
+      }); // clientSocket.on('areYouReady')
 
       // ------------------------------------------------------------------------- [UI]
       // +++++++++++++++++ clientSocket.on('partRequest') ++++++++++++++++++++++++
@@ -151,7 +151,7 @@ $(document).ready(function() {
         if (key === 'nose') { getNose(); }
         if (key === 'leftEye') { getLeftEye(); }
         if (key === 'rightEye') { getRightEye(); }
-      });
+      }); // clientSocket.on('partRequest')
 
       // ========================================================================= [UI]
       // ------------------------- async get[Part]() -----------------------------
