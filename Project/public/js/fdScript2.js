@@ -1,37 +1,169 @@
-let lookForFacialResponse = false;
+// ===============================================================================
+// public variables
+// ===============================================================================
+let lookForFacialResponse = false; // to see when to observe
 let counter = 0;
 let sum = 0;
 let readyToLook = false;
-let result = null;
-let videoEl;
+let result = null; // keeps the result of the face detection
+let videoEl; // keeps the video element
+
 
 $(document).ready(function() {
   // let clientSocket = io.connect('http://localhost:4200');
-  let clientSocket = io();
   console.log("ready");
+  let clientSocket = io();
   let faceDetectionModelsAreLoaded = false;
 
-
-
+  // =============================================================================
+  // ++++++++++++++++++++++ clientSocket.on('connect') +++++++++++++++++++++++++++
+  // client/server handshake and fired upon connecting to server
+  // everything between server and clients happens here
+  // =============================================================================
   clientSocket.on('connect', function(data) {
     console.log("connected");
     clientSocket.emit('join', 'msg:: client joined');
+
+    // ---------------------------------------------------------------------------
+    // +++++++++++++++++ clientSocket.on('joinedClientId') +++++++++++++++++++++++
+    // when a client gets 'connect' message from server, client emits 'join'
+    // then server emits 'joinedClientId', and when client receives that,
+    // everything on client side starts happening
+    // ---------------------------------------------------------------------------
     clientSocket.on('joinedClientId', function(data) {
-
-      let isMyMouth = false;
-      let isMyNose = false;
-      let isMyLeftEye = false;
-      let isMyRightEye = false;
-
-      // setInterval(function () {
-      //   clientSocket.emit('readyToSendParts', 'client asks for furthur instructions from server')
-      //
-      // }, 2000);
-
       socketId = data;
       console.log(`my ID: ${socketId}`);
-
+      // load faceAPI models and get the webcam feed
       run();
+
+      // =========================================================================
+      // ---------------------------- async run() --------------------------------
+      // called -> on('joinedClientId') once
+      // it sets up everything needed for faceAPI library and loads its models
+      // faceAPI API -> https://github.com/justadudewhohacks/face-api.js
+      // gets the video element and starts streaming it
+      // =========================================================================
+      async function run() {
+        // load faceAPI models
+        await faceapi.loadTinyFaceDetectorModel('/models');
+        await faceapi.loadFaceLandmarkModel('/models');
+        await faceapi.loadFaceRecognitionModel('/models');
+        await faceapi.loadFaceExpressionModel('/models');
+        // if all models are loaded, turn faceDetectionModelsAreLoaded true
+        if (faceapi.nets.faceLandmark68Net.isLoaded && faceapi.nets.faceRecognitionNet.isLoaded
+          && faceapi.nets.tinyFaceDetector.isLoaded && faceapi.nets.faceExpressionNet.isLoaded) {
+          console.log("isLoaded");
+          faceDetectionModelsAreLoaded = true;
+        } // if()
+        // check if we are in secure context
+        if (!window.isSecureContext) {
+          console.log("connection is not secured");
+        }
+        // try and promise to access users webcam and stream the images to the video element
+        const videoEl = $('#video').get(0);
+        navigator.mediaDevices.getUserMedia({
+            video: {}
+          })
+          .then(
+            (stream) => {
+              console.log("have video");
+              videoEl.srcObject = stream;
+            })
+          .catch(function(err) {
+            console.log("have no video");
+          });
+        // when the video is loaded and ready to go, call onPlay to start face detection
+        videoEl.addEventListener('loadedmetadata', (event) => {
+          onPlay();
+        });
+      }; // run()
+
+      // =========================================================================
+      // -------------------------- async onPlay() -------------------------------
+      // called -> async run() once when video is ready + in every frame by itself
+      //
+      // =========================================================================
+      async function onPlay() {
+        // readyToLook = false;
+        videoEl = $('#video').get(0);
+        // in folowing conditions, don't continue and try again
+        if (videoEl.paused || videoEl.ended || !faceDetectionModelsAreLoaded) {
+          return setTimeout(() => onPlay());
+        }
+
+        // tiny_face_detector options
+        // size at which image is processed, the smaller the faster,
+        // but less precise in detecting smaller faces, must be divisible
+        // by 32, common sizes are 128, 160, 224, 320, 416, 512, 608,
+        // for face tracking via webcam I would recommend using smaller sizes,
+        // e.g. 128, 160, for detecting smaller faces use larger sizes, e.g. 512, 608
+        // default: 416
+        let inputSize = 224;
+        // minimum confidence threshold
+        // default: 0.5
+        let scoreThreshold = 0.5;
+        // create an instance of faceAPI neural net
+        const options = new faceapi.TinyFaceDetectorOptions(inputSize, scoreThreshold);
+        // detect the face with the highest confidence score in an image, with face landmarks and expressions
+        result = await faceapi.detectSingleFace(videoEl, options).withFaceLandmarks().withFaceExpressions();
+
+        // if a face is detected, do thse things
+        if (result) {
+          readyToLook = true;
+          const canvas = $('#overlay').get(0);
+
+          const displaySize = {
+            width: videoEl.width,
+            height: videoEl.height
+          };
+          const dim = faceapi.matchDimensions(canvas, displaySize);
+          const resizedResult = faceapi.resizeResults(result, dim);
+
+
+          // faceapi.draw.drawDetections(canvas, resizedResult);
+          // faceapi.draw.drawFaceLandmarks(canvas, resizedResult);
+          // const minProbability = 0.05;
+          // faceapi.draw.drawFaceExpressions(canvas, resizedResult, minProbability);
+          // const face = await faceapi.extractFaces(videoEl, [result.alignedRect.box]);
+
+          // actually extractFaces is meant to extract face regions from bounding boxes
+          // but you can also use it to extract any other region
+          // $('#face').empty();
+          // $('#face').append(face);
+
+          // READY TO EXTRACT PARTS AND SEND IT TO SERVER
+
+          if (lookForFacialResponse) {
+            //console.log(result.expressions.happy);
+            console.log("Started looking");
+            counter++;
+            sum += result.expressions.happy;
+
+          }
+
+
+
+          // TODO: GET THE EXPRESSION
+          // if happy => emit 1 ... if not emit 0
+
+          // console.log(result.expressions.happy);
+          // console.log(result);
+
+          // TODO: Add extractFaces
+
+          // TODO: get different landmarks
+          // result.landmarks.position[]
+          // https://github.com/justadudewhohacks/face-api.js#retrieve-the-face-landmark-points-and-contours
+
+          // https://github.com/justadudewhohacks/face-api.js/issues/180
+
+        }; // if(result)
+
+        // setTimeout(() => onPlay());
+        requestAnimationFrame(onPlay);
+        // setTimeout(() => requestAnimationFrame(onPlay));
+
+      }; // onPlay()
 
       //___________________________________________________ TEXT ___________________________________________________
       /** typing **/
@@ -48,9 +180,6 @@ $(document).ready(function() {
         $("#message").val('');
       });
 
-      clientSocket.on("dataFromServerToChat", function(incomingData) {
-
-      });
       //___________________________________________________
 
       //___________________________________________________ Hearing the joke ___________________________________________________
@@ -112,26 +241,23 @@ $(document).ready(function() {
         if (key === 'mouth') {
           getMouth();
           // requestedParts.push(getMouth());
-          isMyMouth = true;
+
         }
 
         if (key === 'nose') {
           getNose();
           // requestedParts.push(getNose());
 
-          isMyNose = true;
         }
 
         if (key === 'leftEye') {
           getLeftEye();
           // requestedParts.push(getLeftEye());
-          isMyLeftEye = true;
         }
 
         if (key === 'rightEye') {
           getRightEye();
           // requestedParts.push(getRightEye());
-          isMyRightEye = true;
         }
 
         // Trying to use promisall
@@ -284,258 +410,9 @@ $(document).ready(function() {
 
 
 
-      async function onPlay() {
-        // readyToLook = false;
-        videoEl = $('#video').get(0);
-
-
-        if (videoEl.paused || videoEl.ended || !faceDetectionModelsAreLoaded) {
-          return setTimeout(() => onPlay());
-        }
-
-        // ___________________________________________________
-        // tiny_face_detector options
-        let inputSize = 242;
-        let scoreThreshold = 0.5;
-        const options = new faceapi.TinyFaceDetectorOptions(inputSize, scoreThreshold);
-        // ___________________________________________________
-
-
-        result = await faceapi.detectSingleFace(videoEl, options).withFaceLandmarks().withFaceExpressions();
-
-
-        if (result) {
-          readyToLook = true;
-          const canvas = $('#overlay').get(0);
-          // let context = canvas.getContext('2d');
-
-          const jawOutline = result.landmarks.getJawOutline();
-          const nose = result.landmarks.getNose();
-          //  const mouth = result.landmarks.getMouth();
-          const leftEye = result.landmarks.getLeftEye();
-          const rightEye = result.landmarks.getRightEye();
-          const leftEyeBrow = result.landmarks.getLeftEyeBrow();
-          const rightEyeBrow = result.landmarks.getRightEyeBrow();
-
-
-          const displaySize = {
-            width: videoEl.width,
-            height: videoEl.height
-          };
-          const dim = faceapi.matchDimensions(canvas, displaySize);
-          const resizedResult = faceapi.resizeResults(result, dim);
-
-
-          // if (withBoxes) {
-          // faceapi.draw.drawDetections(canvas, resizedResult);
-          // }
-          // faceapi.draw.drawFaceLandmarks(canvas, resizedResult);
-
-          // const minProbability = 0.05;
-          // faceapi.draw.drawFaceExpressions(canvas, resizedResult, minProbability);
-
-
-          // actually extractFaces is meant to extract face regions from bounding boxes
-          // but you can also use it to extract any other region
-          // console.log(result.alignedRect.box);
-
-          // const face = await faceapi.extractFaces(videoEl, [result.alignedRect.box]);
-
-
-          // ___________________________________________________ extractRandomPart()
-          // not functional yet
-
-
-          // READY TO EXTRACT PARTS AND SEND IT TO SERVER
-
-          // clientSocket.emit('readyToSendParts', 'client asks for furthur instructions from server');
-
-
-          // clientSocket.on("displayMouth", function(data) {
-          //   // console.log("display mouth")
-          //   // console.log("display Mouth");
-          //   // console.log(data);
-          //
-          //   // $('#mouthCanvas').empty();
-          //   // let mouthCanvas = $('#mouthCanvas').get(0);
-          //   //
-          //   // let mouthContext = mouthCanvas.getContext('2d');
-          //   // //  console.log(mouthContext);
-          //   //
-          //   // //  mouthContext.putImageData(data)
-          //   // //  mouthContext.putImageData(data, 0, 0);
-          //   //
-          //   // // create imageData object
-          //   // let idata = mouthContext.createImageData(data.width, data.height);
-          //   //
-          //   // // set our buffer as source
-          //   // idata.data.set(Object.values(data.rawImgData));
-          //   //
-          //   // // update canvas with new data
-          //   // mouthContext.putImageData(idata, 0, 0);
-          //
-          //   //console.log(Object.values(data));
-          //   // $('#mouthCanvas').empty();
-          //   //  $('#mouth').append(mouthCanvas);
-          //   // console.log(data);
-          //   $("#mouthImg").attr('src', data);
-          //   // document.getElementById("mouthImg").src = data;
-          //   console.log("in displayMouth");
-          //
-          //   // console.log(data);
-          // });
-
-
-          // async function getMouth() {
-          //   let exPart = extractRandomPart(result.landmarks.getMouth(), 15);
-          //   const extractedPart = await faceapi.extractFaces(videoEl, exPart.region);
-          //
-          //   return extractedPart;
-          //
-          //   // let cx = document.getElementById("mouthTwo").getContext("2d");
-          //
-          //   // let displayableMouth = {
-          //   //   rawImgData: extractedPart[0].getContext("2d").getImageData(0, 0, extractedPart[0].width, extractedPart[0].height).data,
-          //   //   width: exPart.width,
-          //   //   height: exPart.height
-          //   // };
-          //
-          //
-          //   // ========> using .toDataURL()
-          //   // let displayableMouth = extractedPart[0].toDataURL("image/jpg", 0.1);
-          //   //----------
-          //   // clientSocket.emit('gotMouth', displayableMouth);
-          //   //----------
-          //
-          //
-          //   //  console.log(extractedPart[0].getContext("2d").getImageData(0,0,100,100).data);
-          //   //  let e  = document.getElementById("mouth");
-          //   //let t = e.document.getElementsByTagName("canvas")[0];
-          //   //console.log(e);
-          //   //let t = {"test":extractedPart};
-          //   //console.log(t.test);
-          //
-          //   // document.getElementById('mouthImg').src = displayableMouth;
-          //
-          //   // $('#mouthInnerDiv').empty();
-          //   // $('#mouthInnerDiv').append(extractedPart);
-          // }
-
-
-          // let requestedPart = mouth;
-          //
-          // let exPart = extractRandomPart(requestedPart);
-          //
 
 
 
-          //
-          // // console.log(exPart);
-          // // console.log(result.alignedRect.box);
-          //
-          // //console.log(result.alignedRect.box);
-          //
-          // // extrarct it
-          //  const extractedPart = await faceapi.extractFaces(videoEl, exPart);
-
-          // send it to serever
-
-          // Display the face
-          $('#face').empty();
-          $('#face').append(face);
-
-          // $('#otherParts').empty();
-          // $('#otherParts').append(extractedPart);
-
-
-
-          if (lookForFacialResponse) {
-            //console.log(result.expressions.happy);
-            console.log("Started looking");
-            counter++;
-            sum += result.expressions.happy;
-
-          }
-
-
-
-          // TODO: GET THE EXPRESSION
-          // if happy => emit 1 ... if not emit 0
-
-          // console.log(result.expressions.happy);
-          // console.log(result);
-
-          // TODO: Add extractFaces
-
-          // TODO: get different landmarks
-          // result.landmarks.position[]
-          // https://github.com/justadudewhohacks/face-api.js#retrieve-the-face-landmark-points-and-contours
-
-          // https://github.com/justadudewhohacks/face-api.js/issues/180
-
-        }; // if(result)
-
-        // setTimeout(() => onPlay());
-        requestAnimationFrame(onPlay);
-        // setTimeout(() => requestAnimationFrame(onPlay));
-
-      }; // onPlay()
-
-      async function run() {
-        // await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
-        // await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
-        // await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
-
-        await faceapi.loadTinyFaceDetectorModel('/models');
-        await faceapi.loadFaceLandmarkModel('/models');
-        await faceapi.loadFaceRecognitionModel('/models');
-        await faceapi.loadFaceExpressionModel('/models');
-
-
-        // console.log(faceapi.nets.faceLandmark68Net);
-        // console.log(faceapi.nets.faceRecognitionNet);
-        // console.log(faceapi.nets.tinyFaceDetector);
-        // console.log(faceapi.nets.faceExpressionNet);
-
-
-        if (faceapi.nets.faceLandmark68Net.isLoaded && faceapi.nets.faceRecognitionNet.isLoaded && faceapi.nets.tinyFaceDetector.isLoaded && faceapi.nets.faceExpressionNet.isLoaded) {
-          console.log("isLoaded");
-          faceDetectionModelsAreLoaded = true;
-        }
-
-        // try to access users webcam and stream the images
-        // to the video element
-
-        if (!window.isSecureContext) {
-          console.log("connection is not secured");
-        }
-
-        // const stream = await navigator.mediaDevices.getUserMedia({
-        //   video: {}
-        // });
-        const videoEl = $('#video').get(0);
-        // videoEl.srcObject = stream;
-        // console.log(navigator.webkitGetUserMedia);
-        navigator.mediaDevices.getUserMedia({
-            video: {}
-          })
-          .then(
-            (stream) => {
-              console.log("have video");
-              videoEl.srcObject = stream;
-
-            })
-          .catch(function(err) {
-            console.log("have no video");
-          })
-
-        videoEl.addEventListener('loadedmetadata', (event) => {
-          onPlay();
-          // setInterval(function () {
-          //   clientSocket.emit('readyToSendParts', 'client asks for furthur instructions from server');
-          // }, 5000);
-        });
-      }; // run()
 
 
     }); // clientSocket.on('joinedClientId')
