@@ -4,10 +4,9 @@
 let lookForFacialResponse = false; // to see when to observe
 let counter = 0;
 let sum = 0;
-let readyToLook = false;
+let isFaceDetected = false;
 let result = null; // keeps the result of the face detection
 let videoEl; // keeps the video element
-
 
 $(document).ready(function() {
   // let clientSocket = io.connect('http://localhost:4200');
@@ -81,10 +80,11 @@ $(document).ready(function() {
       // =========================================================================
       // -------------------------- async onPlay() -------------------------------
       // called -> async run() once when video is ready + in every frame by itself
-      //
+      // updates face detection result in realtime
+      // observes and keeps record of user's happiness level as long as lookForFacialResponse === true
       // =========================================================================
       async function onPlay() {
-        // readyToLook = false;
+        // isFaceDetected = false;
         videoEl = $('#video').get(0);
         // in folowing conditions, don't continue and try again
         if (videoEl.paused || videoEl.ended || !faceDetectionModelsAreLoaded) {
@@ -107,253 +107,108 @@ $(document).ready(function() {
         // detect the face with the highest confidence score in an image, with face landmarks and expressions
         result = await faceapi.detectSingleFace(videoEl, options).withFaceLandmarks().withFaceExpressions();
 
-        // if a face is detected, do thse things
+        // if a face is detected, do these stuff
         if (result) {
-          readyToLook = true;
+          isFaceDetected = true;
           const canvas = $('#overlay').get(0);
-
+          // resize the face detection result
           const displaySize = {
             width: videoEl.width,
             height: videoEl.height
           };
           const dim = faceapi.matchDimensions(canvas, displaySize);
           const resizedResult = faceapi.resizeResults(result, dim);
-
-
-          // faceapi.draw.drawDetections(canvas, resizedResult);
-          // faceapi.draw.drawFaceLandmarks(canvas, resizedResult);
-          // const minProbability = 0.05;
-          // faceapi.draw.drawFaceExpressions(canvas, resizedResult, minProbability);
-          // const face = await faceapi.extractFaces(videoEl, [result.alignedRect.box]);
-
-          // actually extractFaces is meant to extract face regions from bounding boxes
-          // but you can also use it to extract any other region
-          // $('#face').empty();
-          // $('#face').append(face);
-
-          // READY TO EXTRACT PARTS AND SEND IT TO SERVER
-
+          // if it is time to keep record of user's happiness, do it
           if (lookForFacialResponse) {
-            //console.log(result.expressions.happy);
             console.log("Started looking");
             counter++;
             sum += result.expressions.happy;
-
-          }
-
-
-
-          // TODO: GET THE EXPRESSION
-          // if happy => emit 1 ... if not emit 0
-
-          // console.log(result.expressions.happy);
-          // console.log(result);
-
-          // TODO: Add extractFaces
-
-          // TODO: get different landmarks
-          // result.landmarks.position[]
-          // https://github.com/justadudewhohacks/face-api.js#retrieve-the-face-landmark-points-and-contours
-
-          // https://github.com/justadudewhohacks/face-api.js/issues/180
-
+          } // if()
         }; // if(result)
-
-        // setTimeout(() => onPlay());
+        // call onPlay for the next frame
         requestAnimationFrame(onPlay);
-        // setTimeout(() => requestAnimationFrame(onPlay));
-
       }; // onPlay()
 
-      //___________________________________________________ TEXT ___________________________________________________
-      /** typing **/
-      $("#sub").click(function() {
-
-        let data = $("#message").val();
-
-        // console.log(data);
-        let toSend = {
-          id: socketId,
-          data: data
-        };
-        clientSocket.emit('textChat', toSend);
-        $("#message").val('');
-      });
-
-      //___________________________________________________
-
-      //___________________________________________________ Hearing the joke ___________________________________________________
-      clientSocket.on('jokeFromServer', function(data) {
-
-        // show
-        console.log(data.data);
-        let liitem = $("<li>");
-        liitem.text("ID: " + data.id + " => " + data.data);
-        $("#chatList").append(liitem);
-
-        console.log("got the joke from server");
-        // if there is a radical change in the amount of happiness in a sicific amout of time -> emit 1
-
-        setTimeout(getFacialResponse, 3000);
-
-        function getFacialResponse() {
-
-          lookForFacialResponse = true;
-
-          setTimeout(function() {
-            lookForFacialResponse = false;
-            console.log(`counter: ${counter}, Sum: ${sum}, Average: ${sum/counter}`);
-            let average = sum / counter;
-            sum = 0;
-            counter = 0;
-
-            const packet = {
-              id: socketId,
-              data: data.data,
-              response: average.toFixed(3)
-            };
-            console.log(packet);
-            clientSocket.emit('facialResponse', packet);
-            console.log("send response");
-
-          }, 4000);
-
-        } // getFacialResponse()
-
-      }); // clientSocket.on('jokeFromServer')
-
-      // ___________________________________________________ >>> areYouReady <<<
+      // ------------------------------------------------------------------------- [UI]
+      // +++++++++++++++++ clientSocket.on('areYouReady') ++++++++++++++++++++++++
+      // fired every 500ms
+      // it is the start of slient/server conversation to give the hybridFace parts to server
+      // -------------------------------------------------------------------------
       clientSocket.on('areYouReady', function(data) {
-        if (readyToLook) {
+        if (isFaceDetected) {
           console.log("yes");
-
           clientSocket.emit('readyToSendParts', 'client asks for furthur instructions from server');
         }
       });
-      // ___________________________________________________ <<<<>>>
 
-      // ___________________________________________________ >>> partRequest <<<
+      // ------------------------------------------------------------------------- [UI]
+      // +++++++++++++++++ clientSocket.on('partRequest') ++++++++++++++++++++++++
+      // fired upon server's request for part(s)
+      // checks what part server wants, it gets it and finally sends it (them) to server
+      // -------------------------------------------------------------------------
       clientSocket.on('partRequest', async (key) => {
-
-        // console.log("p");
-        // const requestedParts = [];
-
-        if (key === 'mouth') {
-          getMouth();
-          // requestedParts.push(getMouth());
-
-        }
-
-        if (key === 'nose') {
-          getNose();
-          // requestedParts.push(getNose());
-
-        }
-
-        if (key === 'leftEye') {
-          getLeftEye();
-          // requestedParts.push(getLeftEye());
-        }
-
-        if (key === 'rightEye') {
-          getRightEye();
-          // requestedParts.push(getRightEye());
-        }
-
-        // Trying to use promisall
-
-        // promise.all([])
-
-
-        // let exPart = extractRandomPart(requestedPart);
-        // const extractedPart = await faceapi.extractFaces(videoEl, exPart);
-        //   $('#otherParts').empty();
-        //   $('#otherParts').append(extractedPart);
-        // console.log("part");
-
+        if (key === 'mouth') { getMouth(); }
+        if (key === 'nose') { getNose(); }
+        if (key === 'leftEye') { getLeftEye(); }
+        if (key === 'rightEye') { getRightEye(); }
       });
-      // ___________________________________________________ <<<<>>>>
 
-      // ___________________________________________________ >>>> Get the parts <<<<
+      // ========================================================================= [UI]
+      // ------------------------- async get[Part]() -----------------------------
+      // called -> on('partRequest')
+      // get the boundaries of the requested part by the help of face withFaceLandmarks
+      // extracts the part from the video and converts it to an image dataURL
+      // sends the part to server and displays in on its user browser
+      // extractFaces: it is meant to extract face regions from bounding boxes
+      // but you can also use it to extract any other region
+      // =========================================================================
       async function getMouth() {
         if (result != null) {
-          const exPart = extractRandomPart(result.landmarks.getMouth(), 15);
+          const exPart = extractSection(result.landmarks.getMouth(), 15);
           const extractedPart = await faceapi.extractFaces(videoEl, exPart.region);
           const displayableMouth = extractedPart[0].toDataURL("image/jpg", 0.1);
           clientSocket.emit('gotMouth', displayableMouth);
           document.getElementById('mouthImg').src = displayableMouth;
-        }
-      }
+        } // if()
+      } // getMouth()
 
       async function getNose() {
         if (result != null) {
-          const exPart = extractRandomPart(result.landmarks.getNose(), 15);
+          const exPart = extractSection(result.landmarks.getNose(), 15);
           const extractedPart = await faceapi.extractFaces(videoEl, exPart.region);
           const displayableNose = extractedPart[0].toDataURL("image/jpeg", 0.1);
           clientSocket.emit('gotNose', displayableNose);
           document.getElementById('noseImg').src = displayableNose;
-        }
-        // $('#noseInnerDiv').empty();
-        // $('#noseInnerDiv').append(extractedPart);
-      }
+        } // if()
+      } // getNose()
 
       async function getLeftEye() {
         if (result != null) {
-          const exPart = extractRandomPart(result.landmarks.getLeftEye(), 15);
+          const exPart = extractSection(result.landmarks.getLeftEye(), 15);
           const extractedPart = await faceapi.extractFaces(videoEl, exPart.region);
           const displayableLeftEye = extractedPart[0].toDataURL("image/jpeg", 0.1);
           clientSocket.emit('gotLeftEye', displayableLeftEye);
           document.getElementById('leftEyeImg').src = displayableLeftEye;
-        }
-
-
-
-
-        // $('#leftEyeInnerDiv').empty();
-        // $('#leftEyeInnerDiv').append(extractedPart);
-      }
+        } // if()
+      } // getLeftEye()
 
       async function getRightEye() {
         if (result != null) {
-          const exPart = extractRandomPart(result.landmarks.getRightEye(), 15);
+          const exPart = extractSection(result.landmarks.getRightEye(), 15);
           const extractedPart = await faceapi.extractFaces(videoEl, exPart.region);
           const displayableRightEye = extractedPart[0].toDataURL("image/jpeg", 0.1);
           clientSocket.emit('gotRightEye', displayableRightEye);
           document.getElementById('rightEyeImg').src = displayableRightEye;
-        }
+        } // if()
+      } // getRightEye()
 
-
-
-        // $('#rightEyeInnerDiv').empty();
-        // $('#rightEyeInnerDiv').append(extractedPart);
-      }
-      // ___________________________________________________ <<<<>>>>
-
-      // ___________________________________________________ >>> display the parts <<<
-      clientSocket.on("displayMouth", function(data) {
-        $("#mouthImg").attr('src', data);
-        // console.log("in displayMouth");
-      });
-
-      clientSocket.on("displayNose", function(data) {
-        document.getElementById("noseImg").src = data;
-        // console.log("is disNose");
-        // console.log(data);
-      });
-
-      clientSocket.on("displayLeftEye", function(data) {
-        document.getElementById("leftEyeImg").src = data;
-        // console.log(data);
-      });
-
-      clientSocket.on("displayRightEye", function(data) {
-        document.getElementById("rightEyeImg").src = data;
-        // console.log(data);
-      });
-      // ___________________________________________________ <<<<>>>
-
-      function extractRandomPart(partToExtract, MARGIN) {
-
+      // ========================================================================= [UI]
+      // --------------- extractSection(partToExtract, MARGIN) -------------------
+      // called -> getMouth()/getNose()/getLeftEye()/getRightEye()
+      // gets the landmark coordinates of the part to extract, and founds its area
+      // and returns x, y, width, height of the box containing it + margin
+      // =========================================================================
+      function extractSection(partToExtract, MARGIN) {
         let part = {
           x: 10000,
           y: 10000,
@@ -361,60 +216,99 @@ $(document).ready(function() {
           height: 0
         };
 
-        // let MARGIN = 15;
-
-        // TODO: select randomly from the parts abouve
-
-        // let partToExtract = _requestedPart;
-
-        // get the box dimensions
-        // console.log(partToExtract[0]);
+        // go through the landmarks and find the extreme left/right/top/down points and store them
         for (let i = 0; i < partToExtract.length; i++) {
-          if (partToExtract[i].x < part.x) {
-            part.x = partToExtract[i].x - MARGIN;
-            // console.log(`x :: ${part.x}`);
-          }
-          if (partToExtract[i].y < part.y) {
-            part.y = partToExtract[i].y - MARGIN;
-            // console.log(`y :: ${part.y}`);
+          if (partToExtract[i].x < part.x) { part.x = partToExtract[i].x - MARGIN; }
+          if (partToExtract[i].y < part.y) { part.y = partToExtract[i].y - MARGIN; }
+          if (partToExtract[i].x > part.width) { part.width = partToExtract[i].x + MARGIN; }
+          if (partToExtract[i].y > part.height) { part.height = partToExtract[i].y + MARGIN; }
+        } // for()
 
-          }
-          if (partToExtract[i].x > part.width) {
-            part.width = partToExtract[i].x + MARGIN;
-            // console.log(`width :: ${part.width}`);
-
-          }
-
-          if (partToExtract[i].y > part.height) {
-            part.height = partToExtract[i].y + MARGIN;
-            // console.log(`height :: ${part.height}`);
-
-          }
-        }
-
+        // calculare width and height
         part.width = part.width - part.x;
         part.height = part.height - part.y;
 
+        // make an neat package
         const regionsToExtract = {
           region: [new faceapi.Rect(part.x, part.y, part.width, part.height)],
           width: part.width,
           height: part.height
         }
-
-        // context.drawImage(videoEl, 0, 0, canvas.width / 2, canvas.height);
-
-        // maybe put the pixleLoad stuff here
-
+        // and return it
         return regionsToExtract;
-      } // extractRandomPart()
+      } // extractSection()
 
+      // ------------------------------------------------------------------------- [UI]
+      // ++++++++++++++++ clientSocket.on('display[Part]') +++++++++++++++++++++++
+      // assigns the received dataURL of each part, to its corresponding image source attribute
+      // -------------------------------------------------------------------------
+      clientSocket.on("displayMouth", function(data) { $("#mouthImg").attr('src', data); });
+      clientSocket.on("displayNose", function(data) { $("#noseImg").attr('src', data); });
+      clientSocket.on("displayLeftEye", function(data) { $("#leftEyeImg").attr('src', data); });
+      clientSocket.on("displayRightEye", function(data) { $("#rightEyeImg").attr('src', data); });
 
+      // ------------------------------------------------------------------------- [ML]
+      // +++++++++++++++++++++++++ $('#sub').click() +++++++++++++++++++++++++++++
+      // fired upon click submit button
+      // get the text data from textbox html5 element and sends it to server
+      // -------------------------------------------------------------------------
+      $("#sub").click(function() {
+        let data = $("#message").val(); // get data
+        let toSend = { // create a package
+          id: socketId,
+          data: data
+        };
+        clientSocket.emit('textChat', toSend); // send the package
+        $("#message").val(''); // reset the texbox
+      }); // .click()
 
+      // ------------------------------------------------------------------------- [ML]
+      // ++++++++++++++++ clientSocket.on('jokeFromServer') +++++++++++++++++++++++
+      // fired upon receiving a joke from server
+      // displays the jokes sent by other clients to severs
+      // waits for 3000ms for user to read the joke
+      // then starts observing user's facial response and sends the result to server
+      // -------------------------------------------------------------------------
+      clientSocket.on('jokeFromServer', function(data) {
+        console.log("got the joke from server");
+        console.log(data.data);
+        // display the joke
+        let liitem = $("<li>");
+        liitem.text("ID: " + data.id + " => " + data.data);
+        $("#chatList").append(liitem);
 
+        // wait for 3000ms till user reads the joke, then call getFacialResponse
+        setTimeout(getFacialResponse, 3000);
 
+        // ======================================================================= [ML]
+        // --------------------- getFacialResponse(data) -------------------------
+        // called -> .on('jokeFromServer'), 3000ms after receiving a joke from Server
+        // observes the user and calculates the average happiness caused by the joke
+        // sends the results to server
+        // =======================================================================
+        function getFacialResponse() {
+          lookForFacialResponse = true; // start observing (see the if statement in onPlay())
+          setTimeout(function() {
+            lookForFacialResponse = false; // stop observing
+            console.log(`counter: ${counter}, Sum: ${sum}, Average: ${sum/counter}`);
+            let average = sum / counter; // get the average
+            // reset variables for next observation
+            sum = 0;
+            counter = 0;
+            // create the packet
+            const packet = {
+              id: socketId,
+              data: data.data,
+              response: average.toFixed(3)
+            };
+            console.log(packet);
+            // send the packet to server
+            clientSocket.emit('facialResponse', packet);
+            console.log("send response");
+          }, 4000);
 
-
-
+        } // getFacialResponse()
+      }); // clientSocket.on('jokeFromServer')
     }); // clientSocket.on('joinedClientId')
   }); // clientSocket.on('connect')
 }); // $(document).ready()

@@ -302,7 +302,6 @@ io.on('connection', function(socket) {
     // UNDER DEVELOPMENT
     // for now, it gets the data from trainingData and trains itself
     // but when we gathered enough traingig data, it will fetchData from data based to train
-
     // ===========================================================================
     function trainML(data) {
       // console.log("inside trainML()=>");
