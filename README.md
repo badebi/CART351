@@ -11,3 +11,4 @@ npm rebuild
 npm install sqlite3
 npm rebuild
 ```
+### [Project Documentation](https://hybrid.concordia.ca/e_badaw/cart351/assets/CART351_eBadawi_projectDocumentation.pdf)
