@@ -21,10 +21,11 @@ let parent = this.id;
     window.location.assign("https://hybrid.concordia.ca/e_badaw/cart351/assets/ebiBadawiProjectProposal.pdf");
   } else if (parent === "two") {
 
-  } else if (parent === "three") {
+  } else if (parent === "five") {
+    window.location.assign("https://hybrid.concordia.ca/e_badaw/cart351/assets/CART351_eBadawi_projectDocumentation.pdf");
 
   } else if (parent === "four") {
-
+    window.location.assign("https://github.com/badebi/cart351");
   }
   //parent.appendChild(subMenu);
 };

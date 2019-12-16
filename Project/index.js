@@ -193,7 +193,7 @@ io.on('connection', function(socket) {
     // ---------------------------- setInterval() --------------------------------
     // handles hybridFace
     // Every 500ms it starts the client/server conversation to get the hybridFace
-    // parts from the assigns clients and send it to all other clents.
+    // parts from the assigned clients and send it to all other clients.
     // - server: 'areYouReady'?
     // - client: [if it has the result from face detection =>] 'readyToSendParts'
     // - server: [checks if client should send a part to server, if yes, which part
