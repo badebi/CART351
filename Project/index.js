@@ -17,7 +17,7 @@ const optionsK = {
   key: key,
   cert: cert
 };
-const portNumber = 4200;
+const portNumber = 4242;
 const app = express();
 const httpsServer = https.createServer(optionsK, app);
 const io = require('socket.io')(httpsServer);
